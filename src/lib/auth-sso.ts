@@ -76,10 +76,17 @@ export function getPasswordStrength(password: string): 'weak' | 'medium' | 'stro
 
 export async function signInWithSSO(email: string, password: string): Promise<SSOLoginResult> {
   try {
-    const { data: isLocked } = await supabase
+    console.log('[SSO] Starting login for:', email);
+
+    const { data: isLocked, error: lockCheckError } = await supabase
       .rpc('is_account_locked', { user_email: email });
 
+    if (lockCheckError) {
+      console.error('[SSO] Lock check error:', lockCheckError);
+    }
+
     if (isLocked) {
+      console.log('[SSO] Account is locked');
       const { data: credentials } = await supabase
         .from('admin_credentials')
         .select('locked_until')
@@ -96,13 +103,15 @@ export async function signInWithSSO(email: string, password: string): Promise<SS
       };
     }
 
+    console.log('[SSO] Fetching credentials...');
     const { data: credentials, error: credError } = await supabase
       .from('admin_credentials')
       .select('user_id, password_hash, must_change_password')
       .eq('email', email)
       .maybeSingle();
 
-    if (credError || !credentials) {
+    if (credError) {
+      console.error('[SSO] Credentials fetch error:', credError);
       await supabase.rpc('increment_failed_login_attempts', { user_email: email });
       return {
         success: false,
@@ -110,13 +119,24 @@ export async function signInWithSSO(email: string, password: string): Promise<SS
       };
     }
 
-    const { data: passwordValid } = await supabase
+    if (!credentials) {
+      console.log('[SSO] No credentials found for email');
+      await supabase.rpc('increment_failed_login_attempts', { user_email: email });
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    console.log('[SSO] Verifying password...');
+    const { data: passwordValid, error: verifyError } = await supabase
       .rpc('verify_password', {
         password,
         password_hash: credentials.password_hash,
       });
 
-    if (!passwordValid) {
+    if (verifyError) {
+      console.error('[SSO] Password verification error:', verifyError);
       await supabase.rpc('increment_failed_login_attempts', { user_email: email });
       return {
         success: false,
@@ -124,27 +144,48 @@ export async function signInWithSSO(email: string, password: string): Promise<SS
       };
     }
 
+    if (!passwordValid) {
+      console.log('[SSO] Password verification failed');
+      await supabase.rpc('increment_failed_login_attempts', { user_email: email });
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    console.log('[SSO] Password verified, resetting failed attempts...');
     await supabase.rpc('reset_failed_login_attempts', { user_email: email });
 
+    console.log('[SSO] Signing in with Supabase Auth...');
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (authError || !authData.user) {
+    if (authError) {
+      console.error('[SSO] Supabase auth error:', authError);
       return {
         success: false,
-        error: authError?.message || 'Authentication failed',
+        error: authError.message || 'Authentication failed',
       };
     }
 
+    if (!authData.user) {
+      console.error('[SSO] No user data returned from Supabase auth');
+      return {
+        success: false,
+        error: 'Authentication failed',
+      };
+    }
+
+    console.log('[SSO] Login successful!');
     return {
       success: true,
       userId: authData.user.id,
       mustChangePassword: credentials.must_change_password,
     };
   } catch (error) {
-    console.error('SSO login error:', error);
+    console.error('[SSO] Unexpected error:', error);
     return {
       success: false,
       error: 'An unexpected error occurred. Please try again later.',
