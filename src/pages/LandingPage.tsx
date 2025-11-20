@@ -175,33 +175,45 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="w-full px-4 lg:px-6 py-3 lg:py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <h1 className="text-xl md:text-2xl font-bold text-navy">FraudCheck</h1>
+        <div className="w-full px-4 py-3">
+          <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
+            <h1 className="text-xl md:text-2xl font-bold text-navy flex-shrink-0">FraudCheck</h1>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-3 xl:gap-4">
-              <a href="#features" className="text-slate-700 hover:text-navy transition-colors font-medium text-sm xl:text-base">
+            <nav className="hidden min-[1150px]:flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+              <a
+                href="#features"
+                className="text-slate-700 hover:text-navy transition-colors font-medium whitespace-nowrap flex-shrink-0 px-2 py-1"
+                style={{ fontSize: 'clamp(0.813rem, 0.75rem + 0.2vw, 0.938rem)' }}
+              >
                 Features
               </a>
-              <a href="#how-it-works" className="text-slate-700 hover:text-navy transition-colors font-medium text-sm xl:text-base">
+              <a
+                href="#how-it-works"
+                className="text-slate-700 hover:text-navy transition-colors font-medium whitespace-nowrap flex-shrink-0 px-2 py-1"
+                style={{ fontSize: 'clamp(0.813rem, 0.75rem + 0.2vw, 0.938rem)' }}
+              >
                 How It Works
               </a>
-              <a href="#pricing" className="text-slate-700 hover:text-navy transition-colors font-medium text-sm xl:text-base">
+              <a
+                href="#pricing"
+                className="text-slate-700 hover:text-navy transition-colors font-medium whitespace-nowrap flex-shrink-0 px-2 py-1"
+                style={{ fontSize: 'clamp(0.813rem, 0.75rem + 0.2vw, 0.938rem)' }}
+              >
                 Pricing
               </a>
               <Button
                 variant="outline"
                 onClick={handleGetStarted}
                 size="sm"
-                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 ml-2"
+                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 ml-1 flex-shrink-0 whitespace-nowrap px-3 py-1 h-8 text-xs"
               >
                 Login
               </Button>
               <Button
                 onClick={handleGetStarted}
                 size="sm"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow flex-shrink-0 whitespace-nowrap px-3 py-1 h-8 text-xs"
               >
                 Start Free Trial
               </Button>
@@ -209,30 +221,30 @@ export default function LandingPage() {
 
             {/* Mobile Navigation */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="lg:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
+              <SheetTrigger asChild className="min-[1150px]:hidden flex-shrink-0">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <nav className="flex flex-col gap-6 mt-8">
+              <SheetContent side="right" className="w-[280px] sm:w-[340px]">
+                <nav className="flex flex-col gap-5 mt-8">
                   <a
                     href="#features"
-                    className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                    className="text-base font-medium text-slate-700 hover:text-navy transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Features
                   </a>
                   <a
                     href="#how-it-works"
-                    className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                    className="text-base font-medium text-slate-700 hover:text-navy transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     How It Works
                   </a>
                   <a
                     href="#pricing"
-                    className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                    className="text-base font-medium text-slate-700 hover:text-navy transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Pricing
@@ -243,7 +255,7 @@ export default function LandingPage() {
                       handleGetStarted();
                       setMobileMenuOpen(false);
                     }}
-                    className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 w-full"
+                    className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 w-full mt-2"
                   >
                     Login
                   </Button>
