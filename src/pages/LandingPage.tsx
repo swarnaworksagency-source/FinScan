@@ -39,23 +39,8 @@ export default function LandingPage() {
     }
   }, [user, loading, navigate, searchParams]);
 
-  const handleGetStarted = async () => {
-    const { supabase } = await import('@/lib/supabase');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent'
-        }
-      }
-    });
-
-    if (error) {
-      console.error('Error signing in:', error.message);
-      alert('Error signing in with Google. Please check your configuration.');
-    }
+  const handleGetStarted = () => {
+    navigate('/login');
   };
 
   const plans = [

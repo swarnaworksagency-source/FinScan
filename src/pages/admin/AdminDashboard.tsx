@@ -68,20 +68,20 @@ export default function AdminDashboard() {
             label="Total Users"
             value={0}
             icon={Users}
-            trend={{ value: 12, isPositive: true }}
+            trend={{ value: 12, positive: true }}
           />
           <MetricCard
             label="Revenue (MRR)"
             value={0}
             prefix="$"
             icon={DollarSign}
-            trend={{ value: 8, isPositive: true }}
+            trend={{ value: 8, positive: true }}
           />
           <MetricCard
             label="Total Analyses"
             value={0}
             icon={BarChart3}
-            trend={{ value: 23, isPositive: true }}
+            trend={{ value: 23, positive: true }}
           />
           <MetricCard
             label="Pending Reviews"
