@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Upload as UploadIcon } from 'lucide-react';
+import { Plus, Upload as UploadIcon, TrendingUp, FileCheck, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
+import { MetricCard } from '@/components/MetricCard';
+import { ElevatedCard } from '@/components/ElevatedCard';
 
 interface Analysis {
   id: string;
@@ -79,107 +81,156 @@ export default function Dashboard() {
     ? (subscription.files_used_this_month / subscription.max_files_per_month) * 100
     : 0;
 
+  const totalAnalyses = analyses.length;
+  const highRiskCount = analyses.filter(a => a.interpretation === 'HIGH_RISK').length;
+  const avgMScore = analyses.length > 0
+    ? analyses.reduce((sum, a) => sum + a.m_score, 0) / analyses.length
+    : 0;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-600">Welcome back! Ready to analyze financial statements?</p>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-navy mb-2">Dashboard</h1>
+          <p className="text-slate-600 text-lg">Welcome back! Ready to analyze financial statements?</p>
+        </div>
+        <Button
+          onClick={() => navigate('/upload')}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
+          size="lg"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          New Analysis
+        </Button>
       </div>
 
-      <Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <MetricCard
+          label="Total Analyses"
+          value={totalAnalyses}
+          icon={FileCheck}
+          trend={{ value: 12, positive: true }}
+        />
+        <MetricCard
+          label="High Risk Detected"
+          value={highRiskCount}
+          icon={AlertTriangle}
+          className="bg-gradient-to-br from-red-50 to-white"
+        />
+        <MetricCard
+          label="Average M-Score"
+          value={avgMScore}
+          decimals={2}
+          icon={TrendingUp}
+          trend={{ value: 5, positive: avgMScore < -2.22 }}
+        />
+      </div>
+
+      <ElevatedCard hover={false}>
         <CardHeader>
-          <CardTitle>Monthly Usage</CardTitle>
-          <CardDescription>
-            {subscription?.files_used_this_month || 0} of {subscription?.max_files_per_month || 3} analyses used
+          <CardTitle className="text-2xl text-navy">Monthly Usage</CardTitle>
+          <CardDescription className="text-base">
+            {subscription?.files_used_this_month || 0} of {subscription?.max_files_per_month || 3} analyses used this month
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Progress value={usagePercent} className="mb-4" />
+          <Progress value={usagePercent} className="mb-4 h-3" />
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-600 capitalize">
+            <span className="text-sm font-semibold text-slate-700 capitalize">
               {subscription?.plan_type || 'Free'} Plan
             </span>
-            {usagePercent >= 100 && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
+            {usagePercent >= 80 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/settings')}
+                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+              >
                 Upgrade Plan
               </Button>
             )}
           </div>
         </CardContent>
-      </Card>
+      </ElevatedCard>
 
       {analyses.length > 0 ? (
-        <Card>
+        <ElevatedCard hover={false}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Recent Analyses</CardTitle>
-                <CardDescription>Your latest fraud detection analyses</CardDescription>
+                <CardTitle className="text-2xl text-navy">Recent Analyses</CardTitle>
+                <CardDescription className="text-base">Your latest fraud detection analyses</CardDescription>
               </div>
-              <Button onClick={() => navigate('/upload')}>
-                <Plus className="w-4 h-4 mr-2" />
-                New Analysis
-              </Button>
             </div>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Year</TableHead>
-                  <TableHead>M-Score</TableHead>
-                  <TableHead>Risk Level</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-slate-200">
+                  <TableHead className="text-slate-700 font-semibold">Company</TableHead>
+                  <TableHead className="text-slate-700 font-semibold">Year</TableHead>
+                  <TableHead className="text-slate-700 font-semibold">M-Score</TableHead>
+                  <TableHead className="text-slate-700 font-semibold">Risk Level</TableHead>
+                  <TableHead className="text-slate-700 font-semibold">Date</TableHead>
+                  <TableHead className="text-slate-700 font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {analyses.map((analysis) => (
-                  <TableRow key={analysis.id}>
-                    <TableCell className="font-medium">{analysis.company_name}</TableCell>
-                    <TableCell>{analysis.financial_year}</TableCell>
+                  <TableRow key={analysis.id} className="hover:bg-slate-50 transition-colors">
+                    <TableCell className="font-semibold text-navy">{analysis.company_name}</TableCell>
+                    <TableCell className="text-slate-700">{analysis.financial_year}</TableCell>
                     <TableCell className={getMScoreColor(analysis.m_score)}>
                       {analysis.m_score.toFixed(3)}
                     </TableCell>
                     <TableCell>{getRiskBadge(analysis.interpretation)}</TableCell>
-                    <TableCell>{format(new Date(analysis.created_at), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="text-slate-600">{format(new Date(analysis.created_at), 'MMM dd, yyyy')}</TableCell>
                     <TableCell>
                       <Button
                         size="sm"
-                        variant="outline"
                         onClick={() => navigate(`/results/${analysis.id}`)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
                       >
-                        View
+                        View Details
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            <div className="mt-4 text-center">
-              <Button variant="link" onClick={() => navigate('/history')}>
-                View All Analyses
+            <div className="mt-6 text-center">
+              <Button
+                variant="link"
+                onClick={() => navigate('/history')}
+                className="text-emerald-600 hover:text-emerald-700 font-semibold"
+              >
+                View All Analyses →
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </ElevatedCard>
       ) : (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <UploadIcon className="mx-auto h-16 w-16 text-slate-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Analyses Yet</h3>
-              <p className="text-slate-600 mb-6">
+        <ElevatedCard hover={false}>
+          <CardContent className="py-16">
+            <div className="text-center max-w-md mx-auto">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
+                <UploadIcon className="w-10 h-10 text-slate-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-navy mb-3">No Analyses Yet</h3>
+              <p className="text-slate-600 text-lg mb-8 leading-relaxed">
                 Get started by uploading your first financial statement for analysis
               </p>
-              <Button onClick={() => navigate('/upload')}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button
+                onClick={() => navigate('/upload')}
+                size="lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
+              >
+                <Plus className="w-5 h-5 mr-2" />
                 Create First Analysis
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </ElevatedCard>
       )}
     </div>
   );
