@@ -5,6 +5,7 @@ import Upload from './pages/Upload';
 import Results from './pages/Results';
 import History from './pages/History';
 import Settings from './pages/Settings';
+import AuthCallback from './pages/AuthCallback';
 import DashboardLayout from './components/DashboardLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
@@ -32,6 +33,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
         path="/*"
         element={

@@ -1,8 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   CheckCircle2, BarChart3, Shield, FileText, ArrowRight, Lock, Zap,
   Users, TrendingUp, DollarSign, AlertTriangle, Download, Database,
@@ -16,23 +17,43 @@ import { MetricCard } from '@/components/MetricCard';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading } = useAuth();
   const [activeFeatureTab, setActiveFeatureTab] = useState('portfolio');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && !loading) {
       navigate('/dashboard');
     }
-  }, [user, loading, navigate]);
+
+    const error = searchParams.get('error');
+    if (error) {
+      if (error === 'auth_failed') {
+        setAuthError('Authentication failed. Please try again or check your Google OAuth configuration.');
+      } else if (error === 'unexpected') {
+        setAuthError('An unexpected error occurred. Please try again later.');
+      }
+    }
+  }, [user, loading, navigate, searchParams]);
 
   const handleGetStarted = async () => {
     const { supabase } = await import('@/lib/supabase');
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
       }
     });
+
+    if (error) {
+      console.error('Error signing in:', error.message);
+      alert('Error signing in with Google. Please check your configuration.');
+    }
   };
 
   const plans = [
@@ -141,6 +162,15 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {authError && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+          <Alert variant="destructive" className="shadow-lg">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
