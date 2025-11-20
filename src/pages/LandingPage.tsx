@@ -324,7 +324,7 @@ export default function LandingPage() {
 
       {/* Social Proof / Trust Bar */}
       <section className="py-8 sm:py-12 bg-slate-50 border-b border-slate-200">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <p className="text-center text-slate-600 mb-6 sm:mb-8 font-medium text-sm sm:text-base">Trusted by leading companies</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 items-center justify-items-center max-w-4xl mx-auto">
             <MetricCard
@@ -364,7 +364,7 @@ export default function LandingPage() {
 
       {/* Problem Statement */}
       <section className="py-12 sm:py-16 md:py-20 bg-white">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy mb-3 sm:mb-4">
@@ -412,7 +412,7 @@ export default function LandingPage() {
 
       {/* Solution Overview */}
       <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-emerald-50 to-slate-50">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
               <div className="space-y-4 sm:space-y-6">
@@ -510,7 +510,7 @@ export default function LandingPage() {
 
       {/* Features Showcase - Tab Based */}
       <section id="features" className="py-12 sm:py-16 md:py-20 bg-white">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy mb-3 sm:mb-4">
@@ -740,7 +740,7 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-slate-50">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
@@ -829,7 +829,7 @@ export default function LandingPage() {
 
       {/* Testimonials */}
       <section className="py-20 bg-white">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
@@ -878,7 +878,7 @@ export default function LandingPage() {
 
       {/* Security & Compliance */}
       <section className="py-20 bg-gradient-to-br from-navy via-navy-800 to-slate-900">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -928,7 +928,7 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-slate-50">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
@@ -1034,7 +1034,7 @@ export default function LandingPage() {
 
       {/* FAQ */}
       <section className="py-20 bg-white">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
@@ -1124,7 +1124,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-navy py-16">
-        <div className="w-full px-3 sm:px-4 md:px-8">
+        <div className="w-full px-4">
           <div className="grid md:grid-cols-5 gap-8 mb-12">
             <div className="md:col-span-2">
               <h3 className="text-2xl font-bold text-white mb-4">FraudCheck</h3>
