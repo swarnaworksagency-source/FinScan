@@ -175,81 +175,91 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="w-full px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl md:text-2xl font-bold text-navy">FraudCheck</h1>
+        <div className="w-full px-4 lg:px-6 py-3 lg:py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <h1 className="text-xl md:text-2xl font-bold text-navy">FraudCheck</h1>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-slate-700 hover:text-navy transition-colors font-medium">Features</a>
-            <a href="#how-it-works" className="text-slate-700 hover:text-navy transition-colors font-medium">How It Works</a>
-            <a href="#pricing" className="text-slate-700 hover:text-navy transition-colors font-medium">Pricing</a>
-            <Button
-              variant="outline"
-              onClick={handleGetStarted}
-              className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50"
-            >
-              Login
-            </Button>
-            <Button
-              onClick={handleGetStarted}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
-            >
-              Start Free Trial
-            </Button>
-          </nav>
-
-          {/* Mobile Navigation */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-3 xl:gap-4">
+              <a href="#features" className="text-slate-700 hover:text-navy transition-colors font-medium text-sm xl:text-base">
+                Features
+              </a>
+              <a href="#how-it-works" className="text-slate-700 hover:text-navy transition-colors font-medium text-sm xl:text-base">
+                How It Works
+              </a>
+              <a href="#pricing" className="text-slate-700 hover:text-navy transition-colors font-medium text-sm xl:text-base">
+                Pricing
+              </a>
+              <Button
+                variant="outline"
+                onClick={handleGetStarted}
+                size="sm"
+                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 ml-2"
+              >
+                Login
               </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <nav className="flex flex-col gap-6 mt-8">
-                <a
-                  href="#features"
-                  className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Features
-                </a>
-                <a
-                  href="#how-it-works"
-                  className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  How It Works
-                </a>
-                <a
-                  href="#pricing"
-                  className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Pricing
-                </a>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    handleGetStarted();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 w-full"
-                >
-                  Login
+              <Button
+                onClick={handleGetStarted}
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
+              >
+                Start Free Trial
+              </Button>
+            </nav>
+
+            {/* Mobile Navigation */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
                 </Button>
-                <Button
-                  onClick={() => {
-                    handleGetStarted();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow w-full"
-                >
-                  Start Free Trial
-                </Button>
-              </nav>
-            </SheetContent>
-          </Sheet>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <nav className="flex flex-col gap-6 mt-8">
+                  <a
+                    href="#features"
+                    className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#how-it-works"
+                    className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    How It Works
+                  </a>
+                  <a
+                    href="#pricing"
+                    className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Pricing
+                  </a>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      handleGetStarted();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 w-full"
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleGetStarted();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow w-full"
+                  >
+                    Start Free Trial
+                  </Button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
