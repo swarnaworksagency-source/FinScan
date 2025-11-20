@@ -94,13 +94,17 @@ export async function signInWithSSO(email: string, password: string): Promise<SS
         .maybeSingle();
 
       const lockedUntil = credentials?.locked_until ? new Date(credentials.locked_until) : new Date();
-      const minutesRemaining = Math.ceil((lockedUntil.getTime() - Date.now()) / 1000 / 60);
+      const minutesRemaining = Math.max(0, Math.ceil((lockedUntil.getTime() - Date.now()) / 1000 / 60));
 
-      return {
-        success: false,
-        error: `Account is locked. Please try again in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`,
-        lockedUntil,
-      };
+      if (minutesRemaining <= 0) {
+        console.log('[SSO] Lock expired, proceeding with login');
+      } else {
+        return {
+          success: false,
+          error: `Account is locked. Please try again in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`,
+          lockedUntil,
+        };
+      }
     }
 
     console.log('[SSO] Fetching credentials...');

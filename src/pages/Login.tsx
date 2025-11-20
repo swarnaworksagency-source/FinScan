@@ -173,11 +173,15 @@ export default function Login() {
           )}
 
           <div className="space-y-6">
-            <div>
+            <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border-2 border-blue-200">
+              <div className="text-center mb-3">
+                <h3 className="font-semibold text-gray-900 mb-1">User Login (Google OAuth)</h3>
+                <p className="text-xs text-gray-600">For investors and general users</p>
+              </div>
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 text-base font-medium border-2 hover:bg-gray-50 transition-colors"
+                className="w-full h-12 text-base font-medium border-2 bg-white hover:bg-gray-50 transition-colors"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
               >
@@ -205,7 +209,6 @@ export default function Login() {
                 )}
                 Continue with Google
               </Button>
-              <p className="text-xs text-gray-500 text-center mt-2">For general users and investors</p>
             </div>
 
             <div className="relative">
@@ -217,10 +220,13 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-lg p-6 border-2 border-slate-200">
-              <div className="flex items-center space-x-2 mb-4">
-                <Shield className="h-5 w-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-900">Admin Sign In</h3>
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg p-6 border-2 border-slate-300">
+              <div className="text-center mb-4">
+                <div className="flex items-center justify-center space-x-2 mb-2">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-semibold text-gray-900">Admin Login (SSO)</h3>
+                </div>
+                <p className="text-xs text-gray-600">For system administrators only</p>
               </div>
 
               <form onSubmit={handleSSOSignIn} className="space-y-4">
