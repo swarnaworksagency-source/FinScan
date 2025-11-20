@@ -175,7 +175,7 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="w-full px-3 sm:px-4 md:px-8 py-4 flex items-center justify-between">
+        <div className="w-full px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl md:text-2xl font-bold text-navy">FraudCheck</h1>
 
           {/* Desktop Navigation */}
