@@ -23,14 +23,18 @@ interface Analysis {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
+    if (profile?.role === 'admin') {
+      navigate('/admin');
+      return;
+    }
     loadDashboardData();
-  }, [user]);
+  }, [user, profile, navigate]);
 
   const loadDashboardData = async () => {
     try {

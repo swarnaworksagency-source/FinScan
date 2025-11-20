@@ -61,3 +61,28 @@ export interface Subscription {
   current_period_start: string;
   current_period_end: string;
 }
+
+export interface Testimonial {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_company?: string;
+  rating: number;
+  content: string;
+  status: 'pending' | 'approved' | 'rejected';
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PricingSetting {
+  id: string;
+  plan_name: string;
+  base_price: number;
+  discount_percentage: number;
+  final_price: number;
+  features: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

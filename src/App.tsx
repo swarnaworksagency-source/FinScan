@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import Upload from './pages/Upload';
 import Results from './pages/Results';
 import History from './pages/History';
@@ -34,6 +35,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route
         path="/*"
         element={
