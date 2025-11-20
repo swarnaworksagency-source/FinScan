@@ -62,7 +62,14 @@ This application supports two distinct authentication methods:
 ## Current Admin Credentials
 
 **Email:** `admin@fraud.com`
-**Password:** `admin123`
+**Password:** `@Min1234`
+
+**Password Requirements Met:**
+- ✓ Minimum 8 characters
+- ✓ Contains uppercase letter (M)
+- ✓ Contains lowercase letter (in)
+- ✓ Contains number (1234)
+- ✓ Contains special character (@)
 
 **IMPORTANT:** Change password on first login!
 
@@ -165,6 +172,14 @@ WHERE email = 'admin@fraud.com';
 
 UPDATE admin_credentials
 SET password_hash = crypt('new_password', gen_salt('bf', 12))
+WHERE email = 'admin@fraud.com';
+```
+
+Example with current password:
+```sql
+-- Verify current password
+SELECT public.verify_password('@Min1234', password_hash)
+FROM admin_credentials
 WHERE email = 'admin@fraud.com';
 ```
 
