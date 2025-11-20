@@ -175,8 +175,8 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="w-full px-4 py-3">
-          <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
+        <div className="w-full py-3">
+          <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 px-4">
             <h1 className="text-xl md:text-2xl font-bold text-navy flex-shrink-0">FraudCheck</h1>
 
             {/* Desktop Navigation */}
@@ -281,8 +281,8 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] bg-repeat"></div>
         </div>
 
-        <div className="w-full px-3 sm:px-4 md:px-8 relative">
-          <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8 fade-in-up">
+        <div className="w-full relative">
+          <div className="max-w-4xl mx-auto px-4 text-center space-y-6 sm:space-y-8 fade-in-up">
             <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
                 <Lock className="w-4 h-4 text-emerald-400" />
@@ -346,9 +346,10 @@ export default function LandingPage() {
 
       {/* Social Proof / Trust Bar */}
       <section className="py-8 sm:py-12 bg-slate-50 border-b border-slate-200">
-        <div className="w-full px-4">
-          <p className="text-center text-slate-600 mb-6 sm:mb-8 font-medium text-sm sm:text-base">Trusted by leading companies</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 items-center justify-items-center max-w-4xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-4xl mx-auto px-4">
+            <p className="text-center text-slate-600 mb-6 sm:mb-8 font-medium text-sm sm:text-base">Trusted by leading companies</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 items-center justify-items-center">
             <MetricCard
               label="Assets Protected"
               value={10}
@@ -380,14 +381,15 @@ export default function LandingPage() {
               animate={false}
               className="bg-transparent shadow-none"
             />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Problem Statement */}
       <section className="py-12 sm:py-16 md:py-20 bg-white">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy mb-3 sm:mb-4">
                 Financial Fraud Shouldn't Be This Hard to Detect
@@ -434,8 +436,8 @@ export default function LandingPage() {
 
       {/* Solution Overview */}
       <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-emerald-50 to-slate-50">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
               <div className="space-y-4 sm:space-y-6">
                 <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-xs sm:text-sm">
@@ -532,8 +534,8 @@ export default function LandingPage() {
 
       {/* Features Showcase - Tab Based */}
       <section id="features" className="py-12 sm:py-16 md:py-20 bg-white">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy mb-3 sm:mb-4">
                 Powerful Features for Fraud Detection
@@ -762,8 +764,8 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-slate-50">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
                 Get Started in Minutes, Not Hours
@@ -851,8 +853,8 @@ export default function LandingPage() {
 
       {/* Testimonials */}
       <section className="py-20 bg-white">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
                 Trusted by Financial Professionals Worldwide
@@ -900,8 +902,8 @@ export default function LandingPage() {
 
       {/* Security & Compliance */}
       <section className="py-20 bg-gradient-to-br from-navy via-navy-800 to-slate-900">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Your Security is Our Priority
@@ -950,8 +952,8 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-slate-50">
-        <div className="w-full px-4">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
                 Simple, Transparent Pricing
@@ -1056,8 +1058,8 @@ export default function LandingPage() {
 
       {/* FAQ */}
       <section className="py-20 bg-white">
-        <div className="w-full px-4">
-          <div className="max-w-3xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-3xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
                 Common Questions Answered
@@ -1101,7 +1103,7 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-br from-emerald-600 to-emerald-700 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-10"></div>
 
-        <div className="w-full px-3 sm:px-4 md:px-8 relative">
+        <div className="w-full relative">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <h2 className="text-4xl md:text-5xl font-bold text-white">
               Start Detecting Fraud Today
@@ -1146,7 +1148,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-navy py-16">
-        <div className="w-full px-4">
+        <div className="w-full">
           <div className="grid md:grid-cols-5 gap-8 mb-12">
             <div className="md:col-span-2">
               <h3 className="text-2xl font-bold text-white mb-4">FraudCheck</h3>

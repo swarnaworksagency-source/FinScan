@@ -18,8 +18,15 @@
 
 body {
   margin: 0;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+html {
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
 }
 
@@ -162,5 +169,14 @@ body {
 
   .hover-lift:hover {
     @apply -translate-y-1 shadow-elevated-hover;
+  }
+}
+
+@media (max-width: 640px) {
+  body, html, #root {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
   }
 }
