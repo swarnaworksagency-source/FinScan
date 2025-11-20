@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   CheckCircle2, BarChart3, Shield, FileText, ArrowRight, Lock, Zap,
   Users, TrendingUp, DollarSign, AlertTriangle, Download, Database,
-  Link2, Play, Star, Award, CheckCircle, X, UserPlus, Activity
+  Link2, Play, Star, Award, CheckCircle, X, UserPlus, Activity, Menu
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ElevatedCard } from '@/components/ElevatedCard';
@@ -21,6 +22,7 @@ export default function LandingPage() {
   const { user, loading } = useAuth();
   const [activeFeatureTab, setActiveFeatureTab] = useState('portfolio');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (user && !loading) {
@@ -174,7 +176,9 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-navy">FraudCheck</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-navy">FraudCheck</h1>
+
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-slate-700 hover:text-navy transition-colors font-medium">Features</a>
             <a href="#how-it-works" className="text-slate-700 hover:text-navy transition-colors font-medium">How It Works</a>
@@ -193,6 +197,59 @@ export default function LandingPage() {
               Start Free Trial
             </Button>
           </nav>
+
+          {/* Mobile Navigation */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col gap-6 mt-8">
+                <a
+                  href="#features"
+                  className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Features
+                </a>
+                <a
+                  href="#how-it-works"
+                  className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  How It Works
+                </a>
+                <a
+                  href="#pricing"
+                  className="text-lg font-medium text-slate-700 hover:text-navy transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Pricing
+                </a>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    handleGetStarted();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 w-full"
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleGetStarted();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow w-full"
+                >
+                  Start Free Trial
+                </Button>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
@@ -219,12 +276,12 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
               Detect Financial Statement{' '}
               <span className="gradient-text">Fraud with AI</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Professional-grade fraud detection using the proven Beneish M-Score model. Trusted by 50,000+ investors and analysts worldwide.
             </p>
 
@@ -232,22 +289,22 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 onClick={handleGetStarted}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-7 text-lg font-semibold rounded-xl shadow-emerald-glow hover:-translate-y-1 transition-all duration-300"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8 sm:px-10 py-6 sm:py-7 text-base sm:text-lg font-semibold rounded-xl shadow-emerald-glow hover:-translate-y-1 transition-all duration-300"
               >
                 Start Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 px-10 py-7 text-lg rounded-xl"
+                className="w-full sm:w-auto border-2 border-white text-white hover:bg-white/10 px-8 sm:px-10 py-6 sm:py-7 text-base sm:text-lg rounded-xl"
               >
-                <Play className="mr-2 w-5 h-5" />
+                <Play className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
                 Watch Demo
               </Button>
             </div>
 
-            <div className="flex items-center justify-center gap-8 pt-4 text-slate-400 text-sm">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8 pt-4 text-slate-400 text-xs sm:text-sm">
               <span className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
                 No credit card required
@@ -266,10 +323,10 @@ export default function LandingPage() {
       </section>
 
       {/* Social Proof / Trust Bar */}
-      <section className="py-12 bg-slate-50 border-b border-slate-200">
+      <section className="py-8 sm:py-12 bg-slate-50 border-b border-slate-200">
         <div className="container mx-auto px-4 md:px-8">
-          <p className="text-center text-slate-600 mb-8 font-medium">Trusted by leading companies</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center max-w-4xl mx-auto">
+          <p className="text-center text-slate-600 mb-6 sm:mb-8 font-medium text-sm sm:text-base">Trusted by leading companies</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 items-center justify-items-center max-w-4xl mx-auto">
             <MetricCard
               label="Assets Protected"
               value={10}
@@ -306,19 +363,19 @@ export default function LandingPage() {
       </section>
 
       {/* Problem Statement */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy mb-3 sm:mb-4">
                 Financial Fraud Shouldn't Be This Hard to Detect
               </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto px-4">
                 Traditional analysis methods are time-consuming, error-prone, and often miss critical warning signs
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
               <ElevatedCard className="text-center">
                 <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                   <AlertTriangle className="w-8 h-8 text-red-600" />
@@ -354,18 +411,18 @@ export default function LandingPage() {
       </section>
 
       {/* Solution Overview */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 to-slate-50">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-emerald-50 to-slate-50">
         <div className="container mx-auto px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <div className="inline-block px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-sm">
+            <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-xs sm:text-sm">
                   The Solution
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-navy">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy">
                   One Platform, Complete Fraud Detection
                 </h2>
-                <p className="text-xl text-slate-600 leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed">
                   Automated AI-powered analysis using the academically-proven Beneish M-Score model delivers instant, accurate fraud detection.
                 </p>
                 <ul className="space-y-4">
@@ -393,14 +450,14 @@ export default function LandingPage() {
                 </ul>
                 <Button
                   onClick={handleGetStarted}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg"
+                  className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg"
                 >
                   See How It Works
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
-              <div className="relative">
-                <GlassMorphismCard className="p-8">
+              <div className="relative order-first md:order-last">
+                <GlassMorphismCard className="p-4 sm:p-6 md:p-8">
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-slate-600">M-Score Analysis</span>
@@ -452,43 +509,45 @@ export default function LandingPage() {
       </section>
 
       {/* Features Showcase - Tab Based */}
-      <section id="features" className="py-20 bg-white">
+      <section id="features" className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-navy mb-3 sm:mb-4">
                 Powerful Features for Fraud Detection
               </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto px-4">
                 Everything you need to analyze financial statements and detect manipulation
               </p>
             </div>
 
             <Tabs value={activeFeatureTab} onValueChange={setActiveFeatureTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-12 bg-slate-100 p-2 rounded-xl">
-                <TabsTrigger value="portfolio" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analysis
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 sm:mb-12 bg-slate-100 p-1.5 sm:p-2 rounded-xl gap-1">
+                <TabsTrigger value="portfolio" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm py-2">
+                  <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Analysis</span>
+                  <span className="sm:hidden">Analyze</span>
                 </TabsTrigger>
-                <TabsTrigger value="tracking" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Detection
+                <TabsTrigger value="tracking" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm py-2">
+                  <Shield className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Detection</span>
+                  <span className="sm:hidden">Detect</span>
                 </TabsTrigger>
-                <TabsTrigger value="reports" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg">
-                  <FileText className="w-4 h-4 mr-2" />
+                <TabsTrigger value="reports" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm py-2">
+                  <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   Reports
                 </TabsTrigger>
-                <TabsTrigger value="security" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg">
-                  <Lock className="w-4 h-4 mr-2" />
+                <TabsTrigger value="security" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm py-2">
+                  <Lock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   Security
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="portfolio" className="space-y-8">
-                <div className="grid md:grid-cols-2 gap-12 items-center">
-                  <div className="space-y-6">
-                    <h3 className="text-3xl font-bold text-navy">Automated Financial Analysis</h3>
-                    <p className="text-lg text-slate-600 leading-relaxed">
+              <TabsContent value="portfolio" className="space-y-6 sm:space-y-8">
+                <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
+                  <div className="space-y-4 sm:space-y-6">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-navy">Automated Financial Analysis</h3>
+                    <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
                       Upload your financial statements and get instant, comprehensive analysis using the Beneish M-Score model with AI enhancements.
                     </p>
                     <ul className="space-y-3">
