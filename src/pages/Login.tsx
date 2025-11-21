@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { signIn } from '@/lib/auth';
+import { signInWithEmail } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -71,7 +71,7 @@ export default function Login() {
     }
 
     try {
-      const result = await signIn(email, password);
+      const result = await signInWithEmail(email, password);
 
       if (!result.success) {
         setError(result.error || 'Login failed');
@@ -221,9 +221,9 @@ export default function Login() {
               <div className="text-center mb-4">
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <Shield className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">Admin Login</h3>
+                  <h3 className="font-semibold text-gray-900">Email Login</h3>
                 </div>
-                <p className="text-xs text-gray-600">For system administrators only</p>
+                <p className="text-xs text-gray-600">Sign in with your email and password</p>
               </div>
 
               <form onSubmit={handleEmailSignIn} className="space-y-4">
@@ -283,6 +283,17 @@ export default function Login() {
                     'Sign In'
                   )}
                 </Button>
+
+                <p className="text-sm text-center text-gray-600 mt-4">
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/register')}
+                    className="text-blue-600 hover:underline font-medium"
+                  >
+                    Register here
+                  </button>
+                </p>
               </form>
             </div>
           </div>
