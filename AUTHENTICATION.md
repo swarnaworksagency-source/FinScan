@@ -74,13 +74,13 @@ This application provides **TWO equal authentication methods** for all users.
 
 ### Password Storage
 - **Bcrypt hashing** with 12 salt rounds
-- Passwords stored ONLY in `user_profiles.password_hash`
-- Google OAuth users have NULL password_hash
+- Passwords stored in `auth.users.encrypted_password` (managed by Supabase)
+- Google OAuth users authenticated via OAuth flow
 - No plain text passwords anywhere
 
 ### Authentication Flow
-1. **Email/Password:** Check `user_profiles` → Verify bcrypt → Sign in
-2. **Google OAuth:** Supabase Auth → Auto-create profile
+1. **Email/Password:** `supabase.auth.signInWithPassword()` → Check role in `user_profiles` → Route
+2. **Google OAuth:** Supabase Auth OAuth → Auto-create profile → Route to dashboard
 
 ### Functions
 
@@ -96,7 +96,7 @@ verify_user_password(input_password text, stored_hash text) → boolean
 
 ```
 Email:    admin@fraud.com
-Password: @Min1234
+Password: admin123
 Role:     admin
 Type:     personal
 Method:   email
