@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { signInWithSSO, validatePassword, getPasswordStrength } from '@/lib/auth-sso';
+import { signIn } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,7 +59,7 @@ export default function Login() {
     }
   };
 
-  const handleSSOSignIn = async (e: React.FormEvent) => {
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -71,7 +71,7 @@ export default function Login() {
     }
 
     try {
-      const result = await signInWithSSO(email, password);
+      const result = await signIn(email, password);
 
       if (!result.success) {
         setError(result.error || 'Login failed');
@@ -79,19 +79,16 @@ export default function Login() {
         return;
       }
 
-      if (result.mustChangePassword) {
-        navigate('/change-password', {
-          state: {
-            userId: result.userId,
-            isFirstLogin: true
-          }
-        });
+      toast.success('Login successful!');
+
+      if (result.role === 'admin') {
+        navigate('/admin');
       } else {
-        toast.success('Login successful!');
+        navigate('/dashboard');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again later.');
-      console.error('SSO login error:', err);
+      console.error('Login error:', err);
       setLoading(false);
     }
   };
@@ -224,12 +221,12 @@ export default function Login() {
               <div className="text-center mb-4">
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <Shield className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">Admin Login (SSO)</h3>
+                  <h3 className="font-semibold text-gray-900">Admin Login</h3>
                 </div>
                 <p className="text-xs text-gray-600">For system administrators only</p>
               </div>
 
-              <form onSubmit={handleSSOSignIn} className="space-y-4">
+              <form onSubmit={handleEmailSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input

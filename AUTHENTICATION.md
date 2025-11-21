@@ -1,217 +1,199 @@
-# Authentication Methods
+# Authentication System
 
-This application supports two distinct authentication methods:
+This application uses a **SIMPLE** authentication system powered entirely by Supabase Auth.
 
-## 1. Google OAuth (For Regular Users)
+## Architecture
 
-**Purpose:** For investors and general users who want to analyze financial statements.
+**ONE TABLE:** `user_profiles` (stores role and user info)
+**ONE AUTH SYSTEM:** Supabase Auth (handles ALL passwords)
+**ONE CHECK:** `user_profiles.role` determines admin vs user
+
+## Authentication Methods
+
+### 1. Google OAuth (For Regular Users)
+
+**For:** Investors and general users
 
 **How it works:**
-- Users click "Continue with Google" button
-- Redirected to Google OAuth consent screen
-- Upon approval, redirected back to application
-- User profile created automatically in `user_profiles` table
-- Auth method: `google`
-
-**Database Tables:**
-- `auth.users` (Supabase managed)
-- `user_profiles` (application managed)
-
-**Features:**
-- Usage limits (configurable per user)
-- Usage count tracking
-- Automatic profile creation
-- No password management needed
-
-**User Flow:**
 1. Click "Continue with Google"
-2. Authenticate with Google account
-3. Redirect to `/dashboard`
-4. Start analyzing financial statements
+2. Google OAuth flow
+3. Auto-create profile in `user_profiles` with role = 'user'
+4. Redirect to `/dashboard`
 
-## 2. SSO (For Administrators)
+**Database:**
+- `auth.users` (managed by Supabase)
+- `user_profiles` (role: 'user', auth_method: 'google')
 
-**Purpose:** For system administrators who manage the platform.
+### 2. Email/Password (For Admins)
+
+**For:** System administrators
 
 **How it works:**
-- Admin enters email and password in "Admin Login (SSO)" section
-- Password verified against `admin_credentials` table
-- If valid, sign in to Supabase Auth using same password
-- Mandatory password change on first login
-- Redirect to admin dashboard
+1. Enter email and password
+2. Supabase Auth validates credentials
+3. Check `user_profiles.role`
+4. If role = 'admin', redirect to `/admin`
+5. If role = 'user', redirect to `/dashboard`
 
-**Database Tables:**
-- `auth.users` (Supabase managed)
-- `user_profiles` (application managed)
-- `admin_credentials` (custom table for SSO)
+**Database:**
+- `auth.users` (managed by Supabase)
+- `user_profiles` (role: 'admin', auth_method: 'email')
 
-**Features:**
-- Unlimited usage (no limits)
-- Password-based authentication
-- Account lockout after 5 failed attempts (15 minutes)
-- Mandatory password change on first login
-- Bcrypt password hashing (12 rounds)
-- Failed login attempt tracking
+## Admin Credentials
 
-**User Flow:**
-1. Enter email and password in "Admin Login (SSO)" section
-2. System verifies password
-3. If first login, redirect to `/change-password`
-4. After password change, redirect to `/admin`
-
-## Current Admin Credentials
-
-**Email:** `admin@fraud.com`
-**Password:** `@Min1234`
-
-**Password Requirements Met:**
-- ✓ Minimum 8 characters
-- ✓ Contains uppercase letter (M)
-- ✓ Contains lowercase letter (in)
-- ✓ Contains number (1234)
-- ✓ Contains special character (@)
-
-**IMPORTANT:** Change password on first login!
-
-## Key Differences
-
-| Feature | Google OAuth | SSO |
-|---------|-------------|-----|
-| **Users** | Investors, general users | Administrators only |
-| **Auth Method** | Google Account | Email + Password |
-| **Password** | Not required | Required |
-| **Storage** | auth.users + user_profiles | auth.users + user_profiles + admin_credentials |
-| **Dashboard** | /dashboard | /admin |
-| **Usage Limit** | Yes (configurable) | No (unlimited) |
-| **First Login** | Direct access | Must change password |
-| **Account Lock** | No | Yes (5 failed attempts) |
-
-## Security Features
-
-### Google OAuth
-- Managed by Google's OAuth 2.0
-- No password storage in our database
-- Automatic session management
-- Secure token-based authentication
-
-### SSO
-- Bcrypt password hashing (12 salt rounds)
-- Password stored in both `auth.users.encrypted_password` and `admin_credentials.password_hash`
-- Account lockout after 5 failed attempts
-- Lock duration: 15 minutes
-- Automatic unlock after lock expiration
-- Failed login attempt tracking
-- Row Level Security (RLS) policies
-
-## Login Page UI
-
-The login page clearly separates the two authentication methods:
-
-### User Login (Google OAuth)
-- Located at the top
-- Blue/emerald gradient background
-- Text: "For investors and general users"
-- Button: "Continue with Google"
-
-### Admin Login (SSO)
-- Located at the bottom
-- Slate gradient background
-- Shield icon
-- Text: "For system administrators only"
-- Email and password input fields
-- Button: "Sign In"
-
-## Technical Implementation
-
-### Google OAuth Flow
-```typescript
-// Initiate Google OAuth
-await supabase.auth.signInWithOAuth({
-  provider: 'google',
-  options: {
-    redirectTo: `${window.location.origin}/auth/callback`,
-  },
-});
+```
+Email:    admin@fraud.com
+Password: @Min1234
 ```
 
-### SSO Flow
+## Login Code (Simple!)
+
 ```typescript
-// 1. Check if account is locked
-const { data: isLocked } = await supabase.rpc('is_account_locked', { user_email: email });
+import { supabase } from './supabase';
 
-// 2. Verify password against admin_credentials
-const { data: passwordValid } = await supabase.rpc('verify_password', {
-  password,
-  password_hash: credentials.password_hash,
-});
-
-// 3. Sign in to Supabase Auth
-const { data: authData } = await supabase.auth.signInWithPassword({
+// Login function
+const { data: authData, error } = await supabase.auth.signInWithPassword({
   email,
   password,
 });
 
-// 4. Check if must change password
-if (credentials.must_change_password) {
-  navigate('/change-password');
+// Check role
+const { data: profile } = await supabase
+  .from('user_profiles')
+  .select('role')
+  .eq('id', authData.user.id)
+  .maybeSingle();
+
+// Route based on role
+if (profile.role === 'admin') {
+  navigate('/admin');
+} else {
+  navigate('/dashboard');
 }
 ```
 
-## Password Synchronization
+## Database Schema
 
-**CRITICAL:** For SSO to work, the password must be synchronized in BOTH:
-1. `auth.users.encrypted_password` (for Supabase Auth)
-2. `admin_credentials.password_hash` (for our verification)
+### user_profiles
 
-When changing admin password:
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key (foreign key to auth.users.id) |
+| email | text | User email |
+| display_name | text | Display name |
+| **role** | text | **'admin' or 'user'** |
+| auth_method | text | 'google' or 'email' |
+| usage_limit | integer | Usage limit (NULL for admin = unlimited) |
+| usage_count | integer | Current usage count |
+| created_at | timestamptz | Creation timestamp |
+| updated_at | timestamptz | Update timestamp |
+
+## Key Features
+
+✅ **Simple:** One auth system, one role check
+✅ **Secure:** Supabase handles all password hashing
+✅ **Clean:** No duplicate password storage
+✅ **Maintainable:** Standard Supabase Auth patterns
+
+## NO MORE:
+
+❌ NO admin_credentials table
+❌ NO custom password hashing
+❌ NO account locking logic
+❌ NO password sync issues
+❌ NO complex SSO flow
+
+## Password Management
+
+**For Users:**
+- Managed by Google OAuth (no password needed)
+
+**For Admins:**
+- Managed by Supabase Auth
+- Change password: Use Supabase dashboard or Auth API
+- Reset password: Use Supabase password reset flow
+
+## Creating New Admin
+
 ```sql
--- Update both tables
-UPDATE auth.users
-SET encrypted_password = crypt('new_password', gen_salt('bf'))
-WHERE email = 'admin@fraud.com';
+-- 1. Create user in Supabase Auth
+INSERT INTO auth.users (
+  id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  role
+) VALUES (
+  gen_random_uuid(),
+  'newadmin@example.com',
+  crypt('SecurePassword123!', gen_salt('bf')),
+  now(),
+  'authenticated'
+);
 
-UPDATE admin_credentials
-SET password_hash = crypt('new_password', gen_salt('bf', 12))
-WHERE email = 'admin@fraud.com';
+-- 2. Create profile with admin role
+INSERT INTO user_profiles (
+  id,
+  email,
+  display_name,
+  role,
+  auth_method,
+  usage_limit
+) VALUES (
+  (SELECT id FROM auth.users WHERE email = 'newadmin@example.com'),
+  'newadmin@example.com',
+  'New Admin',
+  'admin',
+  'email',
+  NULL
+);
 ```
 
-Example with current password:
-```sql
--- Verify current password
-SELECT public.verify_password('@Min1234', password_hash)
-FROM admin_credentials
-WHERE email = 'admin@fraud.com';
+## Login Flow Diagram
+
+```
+User enters credentials
+         ↓
+supabase.auth.signInWithPassword()
+         ↓
+   Success? ──No──→ Show error
+         ↓ Yes
+Get role from user_profiles
+         ↓
+role === 'admin'? ──Yes──→ /admin
+         ↓ No
+      /dashboard
 ```
 
 ## Troubleshooting
 
-### "Invalid email or password" error
-- Check if password is synced in both `auth.users` and `admin_credentials`
-- Verify email is correct in all tables
-- Check if account is locked
+### "Invalid email or password"
+- Verify email exists in `auth.users`
+- Verify password is correct
+- Check `email_confirmed_at` is not NULL
 
-### "Account is locked" error
-- Wait 15 minutes for automatic unlock
-- Or manually unlock: `UPDATE admin_credentials SET locked_until = NULL, failed_login_attempts = 0 WHERE email = 'admin@fraud.com'`
+### User not routing to admin
+- Check `user_profiles.role` = 'admin'
+- Verify `user_profiles.id` matches `auth.users.id`
 
 ### Google OAuth not working
-- Verify Google OAuth is configured in Supabase dashboard
-- Check redirect URLs are correct
-- Ensure Google Cloud Console has correct authorized origins
+- Check Google OAuth configured in Supabase dashboard
+- Verify redirect URLs
+- Ensure callback handler exists at `/auth/callback`
 
-## Database Functions
+## Security
 
-### `is_account_locked(user_email text)`
-Checks if SSO account is locked. Auto-clears expired locks.
+- All passwords hashed with bcrypt by Supabase
+- Row Level Security (RLS) enabled on `user_profiles`
+- Role-based access control (RBAC) via `user_profiles.role`
+- No sensitive data in client-side code
+- Secure session management by Supabase
 
-### `increment_failed_login_attempts(user_email text)`
-Increments failed login attempts. Locks account after 5 attempts.
+## Migration Notes
 
-### `reset_failed_login_attempts(user_email text)`
-Resets failed attempts after successful login.
-
-### `verify_password(password text, password_hash text)`
-Verifies password against bcrypt hash.
-
-### `hash_password(password text)`
-Hashes password using bcrypt with 12 salt rounds.
+If upgrading from old system:
+- ✅ Dropped `admin_credentials` table
+- ✅ Dropped custom password functions
+- ✅ Removed account locking logic
+- ✅ Simplified to native Supabase Auth
+- ✅ All passwords now in `auth.users` only
