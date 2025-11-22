@@ -34,16 +34,15 @@ export default function Onboarding() {
   // Protection: Redirect admin and completed users
   useEffect(() => {
     if (!authLoading && profile) {
-      // If admin somehow reaches onboarding, redirect to admin dashboard
+      // Admin should never see onboarding
       if (profile.role === 'admin') {
         navigate('/admin');
         return;
       }
 
-      // If regular user already completed onboarding, redirect to dashboard
+      // User who completed onboarding goes to dashboard
       if (profile.onboarding_completed) {
         navigate('/dashboard');
-        return;
       }
     }
   }, [authLoading, profile, navigate]);
@@ -74,31 +73,25 @@ export default function Onboarding() {
 
     setLoading(true);
     try {
-      // Get plan details from pricing_plans table
+      // Get plan details
       const { data: planDetails } = await supabase
         .from('pricing_plans')
         .select('*')
         .eq('plan_type', data.planType)
         .single();
 
-      // Create/Update user profile
+      // Update user profile
       const { error: profileError } = await supabase
         .from('user_profiles')
-        .upsert({
-          id: user!.id,
-          email: user!.email,
+        .update({
           full_name: data.fullName,
           display_name: data.fullName,
-          role: 'user',
-          auth_method: 'google',
           user_type: data.userType,
           onboarding_completed: true,
           onboarding_step: 3,
-          usage_limit: planDetails?.max_files_per_month || 1,
-          usage_count: 0,
-        }, {
-          onConflict: 'id'
-        });
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user!.id);
 
       if (profileError) throw profileError;
 
@@ -122,7 +115,7 @@ export default function Onboarding() {
 
       if (subError) throw subError;
 
-      // Log onboarding completion
+      // Log onboarding event
       await supabase.from('onboarding_events').insert({
         user_id: user!.id,
         event_type: 'onboarding_completed',
@@ -137,7 +130,7 @@ export default function Onboarding() {
 
       toast.success('Welcome to FraudCheck! 🎉');
       
-      // Force reload to refresh auth context
+      // Hard redirect to refresh context
       window.location.href = '/dashboard';
     } catch (error: any) {
       console.error('Onboarding error:', error);
@@ -372,6 +365,10 @@ export default function Onboarding() {
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <span>Max 5MB file size</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-slate-300">
+                      <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                       <span>Basic M-Score calculation</span>
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
@@ -417,7 +414,11 @@ export default function Onboarding() {
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span>Advanced fraud detection algorithms</span>
+                      <span>Max 20MB file size</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-slate-300">
+                      <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <span>Advanced fraud detection</span>
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -425,7 +426,7 @@ export default function Onboarding() {
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span>Priority email support</span>
+                      <span>Priority support</span>
                     </li>
                   </ul>
                 </button>
@@ -461,15 +462,19 @@ export default function Onboarding() {
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span>API access for integration</span>
+                      <span>Max 50MB file size</span>
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span>Multi-user collaboration (up to 10 users)</span>
+                      <span>API access</span>
                     </li>
                     <li className="flex items-start gap-3 text-slate-300">
                       <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span>Dedicated account manager & 24/7 support</span>
+                      <span>Multi-user collaboration</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-slate-300">
+                      <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <span>24/7 dedicated support</span>
                     </li>
                   </ul>
                 </button>
