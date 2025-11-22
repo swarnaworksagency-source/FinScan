@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Check, User, Building2, GraduationCap, Shield, Zap, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Check, User, Building2, GraduationCap, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 
 type UserType = 'personal' | 'company' | 'student';
@@ -19,7 +19,7 @@ interface OnboardingData {
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<OnboardingData>({
@@ -30,6 +30,23 @@ export default function Onboarding() {
 
   const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
+
+  // Protection: Redirect admin and completed users
+  useEffect(() => {
+    if (!authLoading && profile) {
+      // If admin somehow reaches onboarding, redirect to admin dashboard
+      if (profile.role === 'admin') {
+        navigate('/admin');
+        return;
+      }
+
+      // If regular user already completed onboarding, redirect to dashboard
+      if (profile.onboarding_completed) {
+        navigate('/dashboard');
+        return;
+      }
+    }
+  }, [authLoading, profile, navigate]);
 
   const handleNext = () => {
     if (step === 1 && !data.fullName.trim()) {
@@ -57,12 +74,14 @@ export default function Onboarding() {
 
     setLoading(true);
     try {
+      // Get plan details from pricing_plans table
       const { data: planDetails } = await supabase
         .from('pricing_plans')
         .select('*')
         .eq('plan_type', data.planType)
         .single();
 
+      // Create/Update user profile
       const { error: profileError } = await supabase
         .from('user_profiles')
         .upsert({
@@ -83,6 +102,7 @@ export default function Onboarding() {
 
       if (profileError) throw profileError;
 
+      // Create subscription
       const { error: subError } = await supabase
         .from('subscriptions')
         .insert({
@@ -102,6 +122,7 @@ export default function Onboarding() {
 
       if (subError) throw subError;
 
+      // Log onboarding completion
       await supabase.from('onboarding_events').insert({
         user_id: user!.id,
         event_type: 'onboarding_completed',
@@ -115,6 +136,8 @@ export default function Onboarding() {
       });
 
       toast.success('Welcome to FraudCheck! 🎉');
+      
+      // Force reload to refresh auth context
       window.location.href = '/dashboard';
     } catch (error: any) {
       console.error('Onboarding error:', error);
@@ -123,6 +146,15 @@ export default function Onboarding() {
       setLoading(false);
     }
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-navy via-navy-800 to-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-navy via-navy-800 to-slate-900 flex items-center justify-center p-4">
