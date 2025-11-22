@@ -34,15 +34,23 @@ export default function AuthCallback() {
         return;
       }
 
-      // If profile exists and onboarding completed
-      if (profile && profile.onboarding_completed) {
+      // CRITICAL: Check role first before onboarding
+      if (profile) {
+        // If user is admin, always go to admin dashboard
         if (profile.role === 'admin') {
           navigate('/admin');
-        } else {
+          return;
+        }
+
+        // For regular users, check if onboarding is completed
+        if (profile.onboarding_completed) {
           navigate('/dashboard');
+        } else {
+          // User exists but hasn't completed onboarding
+          navigate('/onboarding');
         }
       } else {
-        // New user or incomplete onboarding - redirect to onboarding
+        // New user - redirect to onboarding
         navigate('/onboarding');
       }
     } catch (err) {
@@ -67,7 +75,7 @@ export default function AuthCallback() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto"></div>
             <p className="text-slate-300 text-lg">Completing authentication...</p>
             <p className="text-slate-500 text-sm">Please wait while we set up your account</p>
           </div>
