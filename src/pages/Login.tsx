@@ -21,12 +21,20 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Redirect logic based on user role and onboarding status
   useEffect(() => {
-    if (user && !authLoading) {
-      if (profile?.role === 'admin') {
+    if (user && !authLoading && profile) {
+      // Admin always goes to admin dashboard
+      if (profile.role === 'admin') {
         navigate('/admin');
-      } else {
+        return;
+      }
+
+      // Regular users - check onboarding status
+      if (profile.onboarding_completed) {
         navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
       }
     }
   }, [user, authLoading, profile, navigate]);
@@ -81,10 +89,19 @@ export default function Login() {
 
       toast.success('Login successful!');
 
+      // Get updated profile to check onboarding status
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', result.userId)
+        .single();
+
       if (result.role === 'admin') {
         navigate('/admin');
-      } else {
+      } else if (userProfile?.onboarding_completed) {
         navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again later.');
@@ -103,6 +120,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
+      {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-emerald-600 p-12 flex-col justify-between text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
 
@@ -155,6 +173,7 @@ export default function Login() {
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-emerald-400/10 rounded-full blur-2xl"></div>
       </div>
 
+      {/* Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
@@ -170,6 +189,7 @@ export default function Login() {
           )}
 
           <div className="space-y-6">
+            {/* Google OAuth Section */}
             <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border-2 border-blue-200">
               <div className="text-center mb-3">
                 <h3 className="font-semibold text-gray-900 mb-1">User Login (Google OAuth)</h3>
@@ -217,6 +237,7 @@ export default function Login() {
               </div>
             </div>
 
+            {/* Email/Password Section */}
             <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg p-6 border-2 border-slate-300">
               <div className="text-center mb-4">
                 <div className="flex items-center justify-center space-x-2 mb-2">
