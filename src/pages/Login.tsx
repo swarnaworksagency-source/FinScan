@@ -21,16 +21,16 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect logic based on user role and onboarding status
+  // Simple redirect logic
   useEffect(() => {
     if (user && !authLoading && profile) {
-      // Admin always goes to admin dashboard
+      // Admin goes to admin dashboard (skip onboarding)
       if (profile.role === 'admin') {
         navigate('/admin');
         return;
       }
 
-      // Regular users - check onboarding status
+      // Regular user - check onboarding
       if (profile.onboarding_completed) {
         navigate('/dashboard');
       } else {
@@ -89,7 +89,7 @@ export default function Login() {
 
       toast.success('Login successful!');
 
-      // Get updated profile to check onboarding status
+      // Get profile to check onboarding
       const { data: userProfile } = await supabase
         .from('user_profiles')
         .select('*')
@@ -192,8 +192,8 @@ export default function Login() {
             {/* Google OAuth Section */}
             <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border-2 border-blue-200">
               <div className="text-center mb-3">
-                <h3 className="font-semibold text-gray-900 mb-1">User Login (Google OAuth)</h3>
-                <p className="text-xs text-gray-600">For investors and general users</p>
+                <h3 className="font-semibold text-gray-900 mb-1">Continue with Google</h3>
+                <p className="text-xs text-gray-600">Quick and secure authentication</p>
               </div>
               <Button
                 type="button"
@@ -244,7 +244,7 @@ export default function Login() {
                   <Shield className="h-5 w-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">Email Login</h3>
                 </div>
-                <p className="text-xs text-gray-600">Sign in with your email and password</p>
+                <p className="text-xs text-gray-600">For admin and registered users</p>
               </div>
 
               <form onSubmit={handleEmailSignIn} className="space-y-4">
@@ -253,7 +253,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@example.com"
+                    placeholder="your.email@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
