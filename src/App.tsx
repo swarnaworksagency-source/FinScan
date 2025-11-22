@@ -9,6 +9,7 @@ import Results from './pages/Results';
 import History from './pages/History';
 import Settings from './pages/Settings';
 import AuthCallback from './pages/AuthCallback';
+import Onboarding from './pages/Onboarding'; // 👈 IMPORT BARU
 import DashboardLayout from './components/DashboardLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
@@ -17,30 +18,52 @@ import './App.css';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-
+  
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-slate-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
-
+  
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
+  
   return <>{children}</>;
 }
 
 function AppRoutes() {
   return (
     <Routes>
+      {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      
+      {/* Onboarding Route - Protected but separate from dashboard */}
+      <Route 
+        path="/onboarding" 
+        element={
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Admin Route */}
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Dashboard Routes */}
       <Route
         path="/*"
         element={

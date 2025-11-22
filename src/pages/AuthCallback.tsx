@@ -1,98 +1,77 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        console.log('🔄 Processing OAuth callback...');
+    handleCallback();
+  }, []);
 
-        // Get session from Supabase
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('❌ Session error:', sessionError);
-          navigate('/?error=auth_failed');
-          return;
-        }
+  const handleCallback = async () => {
+    try {
+      // Get session from URL hash
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (!session) {
-          console.log('⚠️ No session found');
-          navigate('/');
-          return;
-        }
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
+        navigate('/login?error=auth_failed');
+        return;
+      }
 
-        console.log('✅ Session found for user:', session.user.email);
+      // Check if user profile exists
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .maybeSingle();
 
-        // ✅ CRITICAL: Check role from user_profiles
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('role, email')
-          .eq('id', session.user.id)
-          .single();
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Profile check error:', profileError);
+        navigate('/login?error=unexpected');
+        return;
+      }
 
-        if (profileError) {
-          console.warn('⚠️ Profile not found, creating default profile...');
-          
-          // Create default profile for new OAuth user
-          const { error: insertError } = await supabase
-            .from('user_profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email,
-              role: 'user',
-              auth_method: 'google',
-              display_name: session.user.user_metadata?.full_name || session.user.email,
-            });
-
-          if (insertError) {
-            console.error('❌ Error creating profile:', insertError);
-            // Continue anyway, redirect to dashboard
-          } else {
-            console.log('✅ Profile created successfully');
-          }
-
-          // Redirect to dashboard (default for new users)
-          navigate('/dashboard');
-          return;
-        }
-
-        console.log('✅ Profile found:', profile);
-
-        // ✅ REDIRECT based on role
+      // If profile exists and onboarding completed
+      if (profile && profile.onboarding_completed) {
         if (profile.role === 'admin') {
-          console.log('👑 Admin user detected, redirecting to /admin');
           navigate('/admin');
         } else {
-          console.log('👤 Regular user detected, redirecting to /dashboard');
           navigate('/dashboard');
         }
-
-      } catch (err) {
-        console.error('❌ Unexpected error in auth callback:', err);
-        navigate('/?error=unexpected');
+      } else {
+        // New user or incomplete onboarding - redirect to onboarding
+        navigate('/onboarding');
       }
-    };
-
-    handleCallback();
-  }, [navigate]);
+    } catch (err) {
+      console.error('Auth callback error:', err);
+      setError('Authentication failed');
+      navigate('/login?error=unexpected');
+    }
+  };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="text-center space-y-6">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-emerald-600 mx-auto"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full animate-pulse"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className="text-center">
+        {error ? (
+          <div className="space-y-4">
+            <p className="text-red-400 text-lg">{error}</p>
+            <button 
+              onClick={() => navigate('/login')} 
+              className="text-blue-400 hover:underline"
+            >
+              Return to login
+            </button>
           </div>
-        </div>
-        <div className="space-y-2">
-          <p className="text-slate-700 font-semibold text-lg">Completing sign in...</p>
-          <p className="text-slate-500 text-sm">Verifying your account</p>
-        </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="text-slate-300 text-lg">Completing authentication...</p>
+            <p className="text-slate-500 text-sm">Please wait while we set up your account</p>
+          </div>
+        )}
       </div>
     </div>
   );
