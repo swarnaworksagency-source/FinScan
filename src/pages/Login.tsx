@@ -22,11 +22,18 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user && !authLoading) {
-      if (profile?.role === 'admin') {
+    if (user && !authLoading && profile) {
+      // Admin: Direct to admin dashboard (no onboarding check)
+      if (profile.role === 'admin') {
         navigate('/admin');
-      } else {
+        return;
+      }
+      
+      // Regular user: Check onboarding status
+      if (profile.onboarding_completed) {
         navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
       }
     }
   }, [user, authLoading, profile, navigate]);
@@ -81,11 +88,26 @@ export default function Login() {
 
       toast.success('Login successful!');
 
-      if (result.role === 'admin') {
+      // Fetch full profile to check onboarding status
+      const { data: fullProfile } = await supabase
+        .from('user_profiles')
+        .select('role, onboarding_completed')
+        .eq('id', result.userId)
+        .single();
+
+      // Admin: Direct to admin dashboard (no onboarding check)
+      if (fullProfile?.role === 'admin') {
         navigate('/admin');
-      } else {
-        navigate('/dashboard');
+        return;
       }
+
+      // Regular user: Check onboarding status
+      if (fullProfile?.onboarding_completed) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
+
     } catch (err) {
       setError('An unexpected error occurred. Please try again later.');
       console.error('Login error:', err);
