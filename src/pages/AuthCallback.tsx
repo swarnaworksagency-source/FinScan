@@ -9,7 +9,6 @@ export default function AuthCallback() {
 
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
 
     // Set timeout fallback (10 seconds)
     const timeout = setTimeout(() => {
@@ -34,12 +33,14 @@ export default function AuthCallback() {
 
         try {
           const userId = session.user.id;
+          const userEmail = session.user.email;
           console.log('[AuthCallback] User ID:', userId);
+          console.log('[AuthCallback] User Email:', userEmail);
 
           // Wait for potential trigger to complete
           await new Promise(resolve => setTimeout(resolve, 1000));
 
-          // Get or create profile
+          // Get existing profile
           let { data: profile, error: profileError } = await supabase
             .from('user_profiles')
             .select('*')
@@ -49,7 +50,7 @@ export default function AuthCallback() {
           console.log('[AuthCallback] Profile:', profile);
           console.log('[AuthCallback] Profile error:', profileError);
 
-          // Create profile if doesn't exist
+          // If no profile found, create one
           if (!profile) {
             console.log('[AuthCallback] Creating new profile');
             setStatus('Creating profile...');
@@ -58,10 +59,10 @@ export default function AuthCallback() {
               .from('user_profiles')
               .insert({
                 id: userId,
-                email: session.user.email!,
-                full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                role: 'user',
+                email: userEmail!,
+                full_name: session.user.user_metadata?.full_name || userEmail?.split('@')[0] || 'User',
+                display_name: session.user.user_metadata?.full_name || userEmail?.split('@')[0] || 'User',
+                role: 'user', // Default role for new users
                 auth_method: 'google',
                 onboarding_completed: false,
                 onboarding_step: 0,
@@ -80,19 +81,31 @@ export default function AuthCallback() {
 
           if (!mounted) return;
 
-          // Route based on profile
+          // Route based on profile role and onboarding status
           setStatus('Redirecting...');
           
-          if (profile.role === 'admin') {
-            console.log('[AuthCallback] Redirecting to admin');
+          const userRole = profile.role;
+          const onboardingCompleted = profile.onboarding_completed;
+
+          console.log('[AuthCallback] User Role:', userRole);
+          console.log('[AuthCallback] Onboarding Completed:', onboardingCompleted);
+
+          // ADMIN: Direct to admin dashboard (no onboarding required)
+          if (userRole === 'admin') {
+            console.log('[AuthCallback] Admin user - redirecting to admin dashboard');
             navigate('/admin', { replace: true });
-          } else if (profile.onboarding_completed) {
-            console.log('[AuthCallback] Redirecting to dashboard');
+            return;
+          }
+
+          // REGULAR USER: Check onboarding status
+          if (onboardingCompleted) {
+            console.log('[AuthCallback] User completed onboarding - redirecting to dashboard');
             navigate('/dashboard', { replace: true });
           } else {
-            console.log('[AuthCallback] Redirecting to onboarding');
+            console.log('[AuthCallback] User needs onboarding - redirecting to onboarding');
             navigate('/onboarding', { replace: true });
           }
+
         } catch (error: any) {
           console.error('[AuthCallback] Error:', error);
           setStatus(`Error: ${error.message}`);
