@@ -143,7 +143,7 @@ export default function Login() {
               <Shield className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">FraudCheck</h1>
+              <h1 className="text-2xl font-bold">TruReport</h1>
               <p className="text-blue-100 text-sm">Financial Fraud Detection</p>
             </div>
           </div>
