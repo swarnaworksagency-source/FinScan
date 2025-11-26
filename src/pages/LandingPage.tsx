@@ -97,7 +97,7 @@ export default function LandingPage() {
       company: 'TechVentures Inc',
       image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200',
       rating: 5,
-      quote: 'FinCheck saved us from a major investment mistake. The M-Score analysis revealed red flags we completely missed.',
+      quote: 'TruReport saved us from a major investment mistake. The M-Score analysis revealed red flags we completely missed.',
       metric: '$2M saved from risky investment'
     },
     {
@@ -115,7 +115,7 @@ export default function LandingPage() {
       company: 'Audit Excellence LLC',
       image: 'https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=200',
       rating: 5,
-      quote: 'As a professional auditor, I rely on FinCheck for preliminary screening. The accuracy is impressive.',
+      quote: 'As a professional auditor, I rely on TruReport for preliminary screening. The accuracy is impressive.',
       metric: '95% accuracy in fraud detection'
     }
   ];
@@ -162,7 +162,7 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="w-full py-3">
           <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 px-4">
-            <h1 className="text-xl md:text-2xl font-bold text-navy flex-shrink-0">FinCheck</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-navy flex-shrink-0">TruReport</h1>
 
             {/* Desktop Navigation */}
             <nav className="hidden min-[1150px]:flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
@@ -1046,7 +1046,7 @@ export default function LandingPage() {
                 Common Questions Answered
               </h2>
               <p className="text-xl text-slate-600">
-                Everything you need to know about FinCheck
+                Everything you need to know about TruReport
               </p>
             </div>
 
@@ -1090,7 +1090,7 @@ export default function LandingPage() {
               Start Detecting Fraud Today
             </h2>
             <p className="text-xl text-emerald-100">
-              Join 50,000+ investors who trust FinCheck to protect their investments
+              Join 50,000+ investors who trust TruReport to protect their investments
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
@@ -1132,7 +1132,7 @@ export default function LandingPage() {
         <div className="w-full">
           <div className="grid md:grid-cols-5 gap-8 mb-12">
             <div className="md:col-span-2">
-              <h3 className="text-2xl font-bold text-white mb-4">FinCheck</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">TruReport</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-6">
                 AI-powered financial fraud detection using the proven Beneish M-Score model. Trusted by financial professionals worldwide.
               </p>
@@ -1185,7 +1185,7 @@ export default function LandingPage() {
 
           <div className="pt-8 border-t border-slate-800">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-slate-500 text-sm">© 2024 FinCheck. All rights reserved.</p>
+              <p className="text-slate-500 text-sm">© 2024 TruReport. All rights reserved.</p>
               <div className="flex flex-wrap items-center gap-6 text-sm">
                 <a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
                 <a href="#" className="text-slate-400 hover:text-emerald-400 transition-colors">Terms of Service</a>
