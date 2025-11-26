@@ -161,7 +161,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="w-full py-3">
-          <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 px-4">
+          <div className="max-w-[1400px] mx-auto flex items-center justify-between">
             <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
               <img 
                 src="../dist/assets/logo.png" 
