@@ -441,7 +441,7 @@ export default function LandingPage() {
                   <li className="flex items-start gap-3">
                     <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-1" />
                     <div>
-                      <span className="font-semibold text-navy">85%+ Accuracy</span>
+                      <span className="font-semibold text-navy">99%+ Accuracy</span>
                       <p className="text-slate-600">AI-enhanced detection of manipulation indicators</p>
                     </div>
                   </li>
