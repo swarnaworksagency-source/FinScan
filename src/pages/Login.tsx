@@ -291,15 +291,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="text-center text-sm text-gray-600">
-            <Button
-              variant="link"
-              onClick={() => navigate('/')}
-              className="text-blue-600 hover:text-blue-700"
-            >
-              Back to landing page
-            </Button>
-             <Button
+           <Button
                 type="button"
                 variant="outline"
                 className="w-full h-12 text-base font-medium border-2 bg-white hover:bg-gray-50 transition-colors"
@@ -330,6 +322,16 @@ export default function Login() {
                 )}
                 Continue with Google
               </Button>
+
+          <div className="text-center text-sm text-gray-600">
+            <Button
+              variant="link"
+              onClick={() => navigate('/')}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              Back to landing page
+            </Button>
+            
           </div>
         </div>
       </div>
