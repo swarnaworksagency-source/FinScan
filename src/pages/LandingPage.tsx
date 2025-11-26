@@ -162,7 +162,7 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="w-full py-3">
           <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 px-4">
-            <h1 className="text-xl md:text-2xl font-bold text-navy flex-shrink-0">FraudCheck</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-navy flex-shrink-0">FinCheck</h1>
 
             {/* Desktop Navigation */}
             <nav className="hidden min-[1150px]:flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
