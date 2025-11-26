@@ -190,24 +190,7 @@ export default function Login() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border-2 border-blue-200">
-              <div className="text-center mb-3">
-                <h3 className="font-semibold text-gray-900 mb-1">User Login (Google OAuth)</h3>
-                <p className="text-xs text-gray-600">For investors and general users</p>
-              </div>
-             
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or</span>
-              </div>
-            </div>
+           
 
             <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg p-6 border-2 border-slate-300">
               <div className="text-center mb-4">
