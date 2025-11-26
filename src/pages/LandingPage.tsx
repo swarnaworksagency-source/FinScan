@@ -810,7 +810,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-xl font-bold text-navy mb-3">Analyze</h3>
                   <p className="text-slate-600">
-                    AI analyzes the data and calculates the M-Score instantly
+                    Optical Character Recognition (OCR) analyzes the data and calculates the M-Score instantly
                   </p>
                 </ElevatedCard>
               </div>
