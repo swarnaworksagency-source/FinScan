@@ -428,7 +428,7 @@ export default function LandingPage() {
                   One Platform, Complete Fraud Detection
                 </h2>
                 <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed">
-                  Automated AI-powered analysis using the academically-proven Beneish M-Score model delivers instant, accurate fraud detection.
+                  Automated Optical Character Recognition (OCR) analysis using the academically-proven Beneish M-Score model delivers instant, accurate fraud detection.
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
@@ -607,7 +607,7 @@ export default function LandingPage() {
                   <div className="space-y-6">
                     <h3 className="text-3xl font-bold text-navy">Advanced Fraud Detection</h3>
                     <p className="text-lg text-slate-600 leading-relaxed">
-                      Identify manipulation indicators using proven financial ratios and AI-powered pattern recognition.
+                      Identify manipulation indicators using proven financial ratios and Optical Character Recognition (OCR) pattern recognition.
                     </p>
                     <ul className="space-y-3">
                       <li className="flex items-center gap-3">
@@ -1134,7 +1134,7 @@ export default function LandingPage() {
             <div className="md:col-span-2">
               <h3 className="text-2xl font-bold text-white mb-4">TruReport</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                AI-powered financial fraud detection using the proven Beneish M-Score model. Trusted by financial professionals worldwide.
+                Optical Character Recognition (OCR) financial fraud detection using the proven Beneish M-Score model. Trusted by financial professionals worldwide.
               </p>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white transition-colors">
