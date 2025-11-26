@@ -166,7 +166,7 @@ export default function LandingPage() {
             {/* UBAH DISINI: Logo diperbesar 50% (scale-150) tapi tetap anchor di kiri (origin-left) */}
             <div className="flex-shrink-0 cursor-pointer flex items-center gap-2" onClick={() => navigate('/')}>
                <img 
-                 src="../public/assets/logo.png" 
+                 src="../dist/assets/logo.png" 
                  alt="TruReport Logo" 
                  // h-10 menjaga elemen tetap kecil, scale-[1.5] memperbesar gambarnya secara visual
                  className="h-10 md:h-11 w-auto object-contain scale-[1.5] origin-left ml-2"
