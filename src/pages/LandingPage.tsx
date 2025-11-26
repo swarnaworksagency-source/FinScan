@@ -312,7 +312,7 @@ function LandingPageContent() {
             
             <div className="flex-shrink-0 cursor-pointer flex items-center gap-2" onClick={() => navigate('/')}>
                <img 
-                 src="/asset/logo.png" 
+                 src="../dist/asset/logo.png" 
                  alt="TruReport Logo" 
                  className="h-8 md:h-10 w-auto object-contain"
                  onError={(e) => {
