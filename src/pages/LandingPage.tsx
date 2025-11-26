@@ -166,7 +166,7 @@ export default function LandingPage() {
               <img 
                 src="../dist/assets/logo.png" 
                 alt="TruReport Logo" 
-                className="h-8 md: w-200 object-contain" 
+                className="h-8 md: w-500 object-contain" 
               />
             </div>
 
