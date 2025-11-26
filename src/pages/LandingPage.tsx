@@ -442,7 +442,7 @@ export default function LandingPage() {
                     <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-1" />
                     <div>
                       <span className="font-semibold text-navy">99%+ Accuracy</span>
-                      <p className="text-slate-600">Optical Character Recognition (OCR) and sistem analyse</p>
+                      <p className="text-slate-600">Optical Character Recognition (OCR) and sistem analys</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
