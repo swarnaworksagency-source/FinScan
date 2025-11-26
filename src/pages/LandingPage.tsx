@@ -428,7 +428,7 @@ export default function LandingPage() {
                   One Platform, Complete Fraud Detection
                 </h2>
                 <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed">
-                  Automated Optical Character Recognition (OCR) analysis using the academically-proven Beneish M-Score model delivers instant, accurate fraud detection.
+                  Optical Character Recognition (OCR) analysis using the academically-proven Beneish M-Score model delivers instant, accurate fraud detection.
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
