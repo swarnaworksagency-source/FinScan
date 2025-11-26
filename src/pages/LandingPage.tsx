@@ -277,10 +277,6 @@ export default function LandingPage() {
                 <Shield className="w-4 h-4 text-emerald-400" />
                 <span className="text-sm text-emerald-400 font-medium">256-bit Encryption</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
-                <Zap className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm text-emerald-400 font-medium">AI-Powered</span>
-              </div>
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
