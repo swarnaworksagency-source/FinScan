@@ -47,7 +47,7 @@ export default function LandingPage() {
     {
       name: 'Starter',
       price: '$0',
-      period: '',
+      period: 'month',
       description: 'Perfect for getting started',
       features: [
         '3 analyses per month',
