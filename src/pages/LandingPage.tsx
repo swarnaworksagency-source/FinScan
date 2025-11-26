@@ -160,14 +160,21 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="w-full py-3">
+       <div className="w-full py-2">
           <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 px-4">
-            <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
-              <img 
-                src="../dist/assets/logo.png" 
-                alt="TruReport Logo" 
-                className="h-8 md:h-10 w-auto object-contain" 
-              />
+            
+            {/* UBAH DISINI: Logo diperbesar 50% (scale-150) tapi tetap anchor di kiri (origin-left) */}
+            <div className="flex-shrink-0 cursor-pointer flex items-center gap-2" onClick={() => navigate('/')}>
+               <img 
+                 src="/asset/logo.png" 
+                 alt="TruReport Logo" 
+                 // h-10 menjaga elemen tetap kecil, scale-[1.5] memperbesar gambarnya secara visual
+                 className="h-10 md:h-11 w-auto object-contain scale-[1.5] origin-left ml-2"
+                 onError={(e) => {
+                   e.currentTarget.style.display = 'none';
+                   document.getElementById('logo-fallback').style.display = 'block';
+                 }}
+               />
             </div>
 
             {/* Desktop Navigation */}
