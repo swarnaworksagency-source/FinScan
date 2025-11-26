@@ -285,7 +285,7 @@ export default function LandingPage() {
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
               Detect Financial Statement{' '}
-              <span className="gradient-text">Fraud with AI</span>
+              <span className="gradient-text">Fraud based on M-Score</span>
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
