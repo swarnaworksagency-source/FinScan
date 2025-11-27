@@ -15,6 +15,7 @@ import { ElevatedCard } from '@/components/ElevatedCard';
 import { GradientBorderCard } from '@/components/GradientBorderCard';
 import { GlassMorphismCard } from '@/components/GlassMorphismCard';
 import { MetricCard } from '@/components/MetricCard';
+import logo from '../assets/logo.png';
 
 export default function LandingPage() {
   const navigate = useNavigate();
