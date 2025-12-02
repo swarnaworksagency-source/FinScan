@@ -86,3 +86,49 @@ export interface PricingSetting {
   created_at: string;
   updated_at: string;
 }
+
+export interface DocumentUpload {
+  id: string;
+  user_id: string;
+  file_name: string;
+  file_type: 'pdf' | 'docx' | 'xlsx';
+  file_size: number;
+  storage_path: string;
+  ocr_text: string | null;
+  extracted_data: ExtractedData | null;
+  confidence_score: number;
+  status: 'processing' | 'completed' | 'failed';
+  error_message: string | null;
+  created_at: string;
+  processed_at: string | null;
+}
+
+export interface ExtractedData {
+  financialData: Partial<FinancialData>;
+  confidence: Record<string, number>;
+  rawText: string;
+  missingFields: string[];
+  detectedYear?: number;
+  detectedCompany?: string;
+}
+
+export interface FieldConfidence {
+  value: number | string | null;
+  confidence: number;
+  source: 'ocr' | 'manual' | 'inferred';
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  completeness: number;
+}
+
+export type ConfidenceLevel = 'high' | 'medium' | 'low' | 'none';
+
+export interface ProcessingStatus {
+  stage: 'uploading' | 'extracting' | 'parsing' | 'completed' | 'failed';
+  progress: number;
+  message: string;
+}

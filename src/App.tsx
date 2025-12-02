@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Upload from './pages/Upload';
+import UploadWithOCR from './pages/UploadWithOCR';
 import Results from './pages/Results';
 import History from './pages/History';
 import Settings from './pages/Settings';
@@ -74,6 +75,7 @@ function AppRoutes() {
       >
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="upload" element={<Upload />} />
+        <Route path="upload-ocr" element={<UploadWithOCR />} />
         <Route path="results/:id" element={<Results />} />
         <Route path="history" element={<History />} />
         <Route path="settings" element={<Settings />} />
