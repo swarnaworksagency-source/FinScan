@@ -11,6 +11,7 @@ import History from './pages/History';
 import Settings from './pages/Settings';
 import AuthCallback from './pages/AuthCallback';
 import Onboarding from './pages/Onboarding'; // 👈 IMPORT BARU
+import Pricing from './pages/Pricing'; // 👈 IMPORT PRICING
 import DashboardLayout from './components/DashboardLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
@@ -19,7 +20,7 @@ import './App.css';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-50">
@@ -27,11 +28,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
@@ -43,27 +44,37 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      
+
       {/* Onboarding Route - Protected but separate from dashboard */}
-      <Route 
-        path="/onboarding" 
+      <Route
+        path="/onboarding"
         element={
           <ProtectedRoute>
             <Onboarding />
           </ProtectedRoute>
-        } 
+        }
       />
-      
+
+      {/* Pricing Route */}
+      <Route
+        path="/pricing"
+        element={
+          <ProtectedRoute>
+            <Pricing />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Admin Route */}
-      <Route 
-        path="/admin" 
+      <Route
+        path="/admin"
         element={
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      
+
       {/* Dashboard Routes */}
       <Route
         path="/*"

@@ -98,25 +98,14 @@ export default function Dashboard() {
           <h1 className="text-4xl font-bold text-navy mb-2">Dashboard</h1>
           <p className="text-slate-600 text-lg">Welcome back! Ready to analyze financial statements?</p>
         </div>
-        <div className="flex gap-3">
-          <Button
-            onClick={() => navigate('/upload')}
-            variant="outline"
-            size="lg"
-            className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Manual Entry
-          </Button>
-          <Button
-            onClick={() => navigate('/upload-ocr')}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
-            size="lg"
-          >
-            <UploadIcon className="w-5 h-5 mr-2" />
-            Upload Document
-          </Button>
-        </div>
+        <Button
+          onClick={() => navigate('/upload-ocr')}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
+          size="lg"
+        >
+          <UploadIcon className="w-5 h-5 mr-2" />
+          Upload Document
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -236,12 +225,12 @@ export default function Dashboard() {
                 Get started by uploading your first financial statement for analysis
               </p>
               <Button
-                onClick={() => navigate('/upload')}
+                onClick={() => navigate('/upload-ocr')}
                 size="lg"
                 className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow"
               >
-                <Plus className="w-5 h-5 mr-2" />
-                Create First Analysis
+                <UploadIcon className="w-5 h-5 mr-2" />
+                Upload Document
               </Button>
             </div>
           </CardContent>

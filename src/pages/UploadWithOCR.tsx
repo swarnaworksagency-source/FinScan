@@ -4,7 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, FileText, Sparkles } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, FileText, Sparkles, Zap, Cloud } from 'lucide-react';
 import { FinancialData, ExtractedData, ProcessingStatus } from '@/types';
 import { calculateBeneishMScore } from '@/lib/beneish';
 import { supabase } from '@/lib/supabase';
@@ -18,6 +21,7 @@ import {
   mergeExtractedData,
   validateExtractedData
 } from '@/lib/documentProcessor';
+import { checkUploadEligibility, incrementUploadCount } from '@/lib/subscription';
 
 export default function UploadWithOCR() {
   const navigate = useNavigate();
@@ -29,6 +33,8 @@ export default function UploadWithOCR() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | undefined>();
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
+  const [useGoogleOCR, setUseGoogleOCR] = useState(true);
+  const [ocrMethod, setOcrMethod] = useState<string>('');
 
   const [formData, setFormData] = useState<FinancialData>({
     companyName: '',
@@ -68,6 +74,7 @@ export default function UploadWithOCR() {
     setSelectedFile(null);
     setExtractedData(null);
     setProcessingStatus(undefined);
+    setOcrMethod('');
   };
 
   const handleUploadAndProcess = async () => {
@@ -77,6 +84,28 @@ export default function UploadWithOCR() {
     setError('');
 
     try {
+      setProcessingStatus({
+        stage: 'uploading',
+        progress: 10,
+        message: 'Checking subscription status...'
+      });
+
+      // Check subscription limits
+      const eligibility = await checkUploadEligibility(user.id);
+
+      if (!eligibility.allowed) {
+        setError(eligibility.message || 'Upload limit reached');
+        setProcessingStatus({
+          stage: 'failed',
+          progress: 0,
+          message: eligibility.message || 'Upload limit reached'
+        });
+
+        // Optional: Redirect to pricing after a delay or show a button
+        setTimeout(() => navigate('/pricing'), 2000);
+        return;
+      }
+
       setProcessingStatus({
         stage: 'uploading',
         progress: 10,
@@ -101,7 +130,12 @@ export default function UploadWithOCR() {
         throw new Error(createError || 'Failed to create document record');
       }
 
-      const { data, error: processError } = await processDocument(document.id, setProcessingStatus);
+      const { data, error: processError } = await processDocument(document.id, setProcessingStatus, useGoogleOCR);
+
+      // Store OCR method used
+      if (data && (data as any).ocrMethod) {
+        setOcrMethod((data as any).ocrMethod);
+      }
 
       if (processError || !data) {
         throw new Error(processError || 'Failed to process document');
@@ -117,6 +151,9 @@ export default function UploadWithOCR() {
         progress: 100,
         message: 'Processing complete! Review the extracted data below.'
       });
+
+      // Increment usage count for free users
+      await incrementUploadCount(user.id);
 
       setTimeout(() => {
         setStep(2);
@@ -162,7 +199,7 @@ export default function UploadWithOCR() {
           },
           m_score: result.mScore,
           risk_level: result.interpretation === 'HIGH_RISK' ? 'high' :
-                      result.interpretation === 'MODERATE_RISK' ? 'moderate' : 'low'
+            result.interpretation === 'MODERATE_RISK' ? 'moderate' : 'low'
         })
         .select()
         .single();
@@ -236,6 +273,41 @@ export default function UploadWithOCR() {
 
       {step === 1 && (
         <div className="space-y-6">
+          {/* OCR Settings Card */}
+          <Card className="border-2 border-emerald-100 bg-gradient-to-br from-emerald-50/50 to-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Cloud className="w-5 h-5 text-emerald-600" />
+                OCR Processing Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="google-ocr" className="text-base font-medium">
+                    Google Cloud Vision OCR
+                  </Label>
+                  <p className="text-sm text-gray-500">
+                    Enable advanced OCR with AI-powered text extraction and NLP analysis
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {useGoogleOCR && (
+                    <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Recommended
+                    </Badge>
+                  )}
+                  <Switch
+                    id="google-ocr"
+                    checked={useGoogleOCR}
+                    onCheckedChange={setUseGoogleOCR}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <FileUploader
             onFileSelect={handleFileSelect}
             onRemove={handleFileRemove}
@@ -244,7 +316,13 @@ export default function UploadWithOCR() {
           />
 
           {selectedFile && !extractedData && !processingStatus && (
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span>OCR Mode:</span>
+                <Badge variant={useGoogleOCR ? "default" : "secondary"} className={useGoogleOCR ? "bg-emerald-600" : ""}>
+                  {useGoogleOCR ? 'Google Cloud Vision + NLP' : 'Basic Pattern Matching'}
+                </Badge>
+              </div>
               <Button
                 onClick={handleUploadAndProcess}
                 disabled={loading}

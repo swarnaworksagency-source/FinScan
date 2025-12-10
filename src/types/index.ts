@@ -110,6 +110,7 @@ export interface ExtractedData {
   missingFields: string[];
   detectedYear?: number;
   detectedCompany?: string;
+  ocrMethod?: 'basic' | 'google_vision' | 'google_vision_nlp';
 }
 
 export interface FieldConfidence {

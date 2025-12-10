@@ -59,14 +59,17 @@ export async function createDocumentRecord(
 
 export async function processDocument(
   documentId: string,
-  onProgress?: (status: ProcessingStatus) => void
+  onProgress?: (status: ProcessingStatus) => void,
+  useGoogleOCR: boolean = true
 ): Promise<{ data: ExtractedData | null; error: string | null }> {
   try {
     if (onProgress) {
       onProgress({
         stage: 'extracting',
         progress: 30,
-        message: 'Extracting text from document...'
+        message: useGoogleOCR
+          ? 'Extracting text with Google Cloud Vision OCR...'
+          : 'Extracting text from document...'
       });
     }
 
@@ -86,16 +89,24 @@ export async function processDocument(
       },
       body: JSON.stringify({
         documentId,
-        useGoogleOCR: false
+        useGoogleOCR
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to process document');
+    // Get response as text first to handle any parsing errors
+    const responseText = await response.text();
+
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse response:', responseText.substring(0, 500));
+      throw new Error(`Server returned invalid response: ${responseText.substring(0, 100)}`);
     }
 
-    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to process document');
+    }
 
     if (onProgress) {
       onProgress({

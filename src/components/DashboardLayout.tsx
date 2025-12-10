@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Home, Upload, History, Settings, LogOut, Menu, X } from 'lucide-react';
+import { Home, Upload, History, Settings, LogOut, Menu, X, Crown } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState } from 'react';
 
@@ -48,15 +48,25 @@ export default function DashboardLayout() {
                       `}
                     >
                       <item.icon
-                        className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                          isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
-                        }`}
+                        className={`mr-3 h-5 w-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                          }`}
                       />
                       {item.name}
                     </Link>
                   );
                 })}
               </nav>
+
+              <div className="px-4 py-4">
+                <Link
+                  to="/pricing"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg transition-all shadow-lg shadow-emerald-900/20 group"
+                >
+                  <Crown className="w-5 h-5 text-yellow-300 fill-yellow-300 group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold">Upgrade Plan</span>
+                </Link>
+              </div>
+
               <div className="flex-shrink-0 flex border-t border-slate-800 p-4">
                 <div className="flex-shrink-0 w-full">
                   <div className="flex items-center mb-3">
