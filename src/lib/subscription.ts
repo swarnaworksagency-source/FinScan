@@ -76,34 +76,76 @@ export async function incrementUploadCount(userId: string) {
 
 // SIMULATED Payment Gateway Logic
 // In a real app, this would call your backend to create a Stripe Checkout Session
+// Real Midtrans Payment Logic
 export async function processSubscriptionPayment(userId: string, planId: string) {
     return new Promise((resolve, reject) => {
         console.log(`Processing payment for user ${userId} plan ${planId}`);
 
-        // Simulate network delay
-        setTimeout(async () => {
-            // 90% success rate simulation
-            if (Math.random() < 0.1) {
-                reject(new Error('Payment failed. Please try again.'));
-                return;
-            }
+        // 1. Call your backend to get the Snap Token
+        fetch('http://localhost:5000/api/payment/subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId,
+                planId,
+                amount: Object.values(PLANS).find(p => p.id === planId)?.price || 299000,
+                customerDetails: {
+                    // In a real app, pass actual user details here
+                    first_name: "Customer",
+                    email: "customer@example.com"
+                }
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Failed to initiate payment');
+                }
 
-            // On success, update the user profile
-            const updates = {
-                usage_limit: null, // Unlimited
-                // We could store subscription_id, etc.
-            };
+                const token = data.data.token;
+                console.log('Received Snap Token:', token);
 
-            const { error } = await supabase
-                .from('user_profiles')
-                .update(updates)
-                .eq('id', userId);
+                // 2. Open Snap Popup
+                // @ts-ignore
+                window.snap.pay(token, {
+                    onSuccess: async function (result: any) {
+                        console.log('Payment success:', result);
 
-            if (error) {
+                        // Update Supabase
+                        const updates = {
+                            usage_limit: null, // Unlimited
+                        };
+
+                        const { error } = await supabase
+                            .from('user_profiles')
+                            .update(updates)
+                            .eq('id', userId);
+
+                        if (error) {
+                            reject(new Error('Payment successful but failed to update profile. Please contact support.'));
+                        } else {
+                            resolve({ success: true, transactionId: result.transaction_id });
+                        }
+                    },
+                    onPending: function (result: any) {
+                        console.log('Payment pending:', result);
+                        reject(new Error('Payment pending. Please complete the payment.'));
+                    },
+                    onError: function (result: any) {
+                        console.log('Payment error:', result);
+                        reject(new Error('Payment failed.'));
+                    },
+                    onClose: function () {
+                        console.log('Customer closed the popup without finishing the payment');
+                        reject(new Error('Payment cancelled.'));
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Payment Error:', error);
                 reject(error);
-            } else {
-                resolve({ success: true, transactionId: 'TXN_' + Math.floor(Math.random() * 1000000) });
-            }
-        }, 2000);
+            });
     });
 }

@@ -161,21 +161,24 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-       <div className="w-full py-2">
+        <div className="w-full py-2">
           <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4 px-4">
-            
+
             {/* UBAH DISINI: Logo diperbesar 50% (scale-150) tapi tetap anchor di kiri (origin-left) */}
             <div className="flex-shrink-0 cursor-pointer flex items-center gap-2" onClick={() => navigate('/')}>
-               <img 
-                 src={logo} 
-                 alt="TruReport Logo" 
-                 // h-10 menjaga elemen tetap kecil, scale-[1.5] memperbesar gambarnya secara visual
-                 className="h-10 md:h-11 w-auto object-contain scale-[1.5] origin-left ml-2"
-                 onError={(e) => {
-                   e.currentTarget.style.display = 'none';
-                   document.getElementById('logo-fallback').style.display = 'block';
-                 }}
-               />
+              <img
+                src={logo}
+                alt="TruReport Logo"
+                // h-10 menjaga elemen tetap kecil, scale-[1.5] memperbesar gambarnya secara visual
+                className="h-10 md:h-11 w-auto object-contain scale-[1.5] origin-left ml-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = document.getElementById('logo-fallback');
+                  if (fallback) {
+                    fallback.style.display = 'block';
+                  }
+                }}
+              />
             </div>
 
             {/* Desktop Navigation */}
@@ -314,7 +317,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:flex-1 sm:max-w-xs border-2 border-white text-white hover:bg-white/10 px-6 sm:px-8 md:px-10 py-5 sm:py-6 md:py-7 text-base sm:text-lg rounded-xl"
+                className="w-full sm:flex-1 sm:max-w-xs border-2 border-white text-white bg-transparent hover:bg-white/10 px-6 sm:px-8 md:px-10 py-5 sm:py-6 md:py-7 text-base sm:text-lg rounded-xl"
               >
                 <Play className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
                 Watch Demo
@@ -345,37 +348,37 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto px-4">
             <p className="text-center text-slate-600 mb-6 sm:mb-8 font-medium text-sm sm:text-base">Trusted by leading companies</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 items-center justify-items-center">
-            <MetricCard
-              label="Assets Protected"
-              value={10}
-              prefix="$"
-              suffix="B+"
-              animate={false}
-              className="bg-transparent shadow-none"
-            />
-            <MetricCard
-              label="Active Users"
-              value={50000}
-              suffix="+"
-              animate={false}
-              className="bg-transparent shadow-none"
-            />
-            <MetricCard
-              label="Fraud Detected"
-              value={95}
-              suffix="%"
-              decimals={0}
-              animate={false}
-              className="bg-transparent shadow-none"
-            />
-            <MetricCard
-              label="Uptime"
-              value={99.99}
-              suffix="%"
-              decimals={2}
-              animate={false}
-              className="bg-transparent shadow-none"
-            />
+              <MetricCard
+                label="Assets Protected"
+                value={10}
+                prefix="$"
+                suffix="B+"
+                animate={false}
+                className="bg-transparent shadow-none"
+              />
+              <MetricCard
+                label="Active Users"
+                value={50000}
+                suffix="+"
+                animate={false}
+                className="bg-transparent shadow-none"
+              />
+              <MetricCard
+                label="Fraud Detected"
+                value={95}
+                suffix="%"
+                decimals={0}
+                animate={false}
+                className="bg-transparent shadow-none"
+              />
+              <MetricCard
+                label="Uptime"
+                value={99.99}
+                suffix="%"
+                decimals={2}
+                animate={false}
+                className="bg-transparent shadow-none"
+              />
             </div>
           </div>
         </div>
@@ -1118,7 +1121,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 px-10 py-7 text-lg rounded-xl"
+                className="border-2 border-white text-white hover:bg-white/10 px-10 py-7 text-lg rounded-xl bg-transparent"
               >
                 Contact Sales
               </Button>
@@ -1152,13 +1155,13 @@ export default function LandingPage() {
               </p>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" /></svg>
                 </a>
                 <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" /></svg>
                 </a>
                 <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                 </a>
               </div>
             </div>
