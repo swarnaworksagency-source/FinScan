@@ -33,9 +33,11 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState({
     totalUsers: 0,
     proUsers: 0,
+    adminUsers: 0,
     totalAnalyses: 0
   });
 
@@ -86,6 +88,12 @@ export default function AdminDashboard() {
         .select('*', { count: 'exact', head: true })
         .is('usage_limit', null);
 
+      // Get admin users
+      const { count: adminUsers } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'admin');
+
       // Get total analyses
       const { count: totalAnalyses } = await supabase
         .from('fraud_analyses')
@@ -94,6 +102,7 @@ export default function AdminDashboard() {
       setStats({
         totalUsers: totalUsers || 0,
         proUsers: proUsers || 0,
+        adminUsers: adminUsers || 0,
         totalAnalyses: totalAnalyses || 0
       });
     } catch (err) {
@@ -222,7 +231,7 @@ export default function AdminDashboard() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-navy">FraudCheck Admin</h1>
+            <h1 className="text-2xl font-bold text-navy">TruReport Admin</h1>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-600">{profile?.display_name || profile?.email}</span>
@@ -349,15 +358,28 @@ export default function AdminDashboard() {
             <TabsContent value="users">
               <Card>
                 <CardHeader>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <div>
-                      <CardTitle>User Management</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        User Management
+                        <Badge variant="outline" className="ml-2">{users.length} users</Badge>
+                        <Badge className="bg-amber-100 text-amber-700">{stats.adminUsers} admin</Badge>
+                      </CardTitle>
                       <CardDescription>Manage user accounts, subscriptions, and roles</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loadingUsers}>
-                      <RefreshCw className={`w-4 h-4 mr-2 ${loadingUsers ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Search by name or email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loadingUsers}>
+                        <RefreshCw className={`w-4 h-4 mr-2 ${loadingUsers ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -366,88 +388,102 @@ export default function AdminDashboard() {
                       <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
                     </div>
                   ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead>Subscription</TableHead>
-                          <TableHead>Usage</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {users.map((user) => (
-                          <TableRow key={user.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
-                                  {user.role === 'admin' ? (
-                                    <Shield className="w-4 h-4 text-amber-600" />
-                                  ) : (
-                                    <User className="w-4 h-4 text-slate-600" />
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium text-sm">{user.display_name || 'No Name'}</p>
-                                  <p className="text-xs text-slate-500">{user.email}</p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={user.role === 'admin' ? 'default' : 'secondary'}
-                                className={user.role === 'admin' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100' : ''}
-                              >
-                                {user.role === 'admin' ? 'Admin' : 'User'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Switch
-                                  checked={user.usage_limit === null}
-                                  onCheckedChange={() => toggleProStatus(user)}
-                                  disabled={updatingUserId === user.id}
-                                />
-                                <Badge
-                                  variant={user.usage_limit === null ? 'default' : 'outline'}
-                                  className={user.usage_limit === null ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' : ''}
-                                >
-                                  {user.usage_limit === null ? (
-                                    <><Crown className="w-3 h-3 mr-1" />PRO</>
-                                  ) : 'FREE'}
-                                </Badge>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm">
-                                {user.usage_count} / {user.usage_limit === null ? '∞' : user.usage_limit}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => resetUsageCount(user)}
-                                  disabled={updatingUserId === user.id || user.usage_count === 0}
-                                >
-                                  Reset Usage
-                                </Button>
-                                <Button
-                                  variant={user.role === 'admin' ? 'destructive' : 'outline'}
-                                  size="sm"
-                                  onClick={() => toggleAdminRole(user)}
-                                  disabled={updatingUserId === user.id || user.id === profile?.id}
-                                >
-                                  {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                    <>
+                      {users.filter(u =>
+                        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (u.display_name && u.display_name.toLowerCase().includes(searchQuery.toLowerCase()))
+                      ).length === 0 ? (
+                        <div className="text-center py-8 text-slate-500">
+                          No users found matching "{searchQuery}"
+                        </div>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>User</TableHead>
+                              <TableHead>Role</TableHead>
+                              <TableHead>Subscription</TableHead>
+                              <TableHead>Usage</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {users.filter(u =>
+                              u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              (u.display_name && u.display_name.toLowerCase().includes(searchQuery.toLowerCase()))
+                            ).map((user) => (
+                              <TableRow key={user.id}>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                                      {user.role === 'admin' ? (
+                                        <Shield className="w-4 h-4 text-amber-600" />
+                                      ) : (
+                                        <User className="w-4 h-4 text-slate-600" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-sm">{user.display_name || 'No Name'}</p>
+                                      <p className="text-xs text-slate-500">{user.email}</p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant={user.role === 'admin' ? 'default' : 'secondary'}
+                                    className={user.role === 'admin' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100' : ''}
+                                  >
+                                    {user.role === 'admin' ? 'Admin' : 'User'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Switch
+                                      checked={user.usage_limit === null}
+                                      onCheckedChange={() => toggleProStatus(user)}
+                                      disabled={updatingUserId === user.id}
+                                    />
+                                    <Badge
+                                      variant={user.usage_limit === null ? 'default' : 'outline'}
+                                      className={user.usage_limit === null ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' : ''}
+                                    >
+                                      {user.usage_limit === null ? (
+                                        <><Crown className="w-3 h-3 mr-1" />PRO</>
+                                      ) : 'FREE'}
+                                    </Badge>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <span className="text-sm">
+                                    {user.usage_count} / {user.usage_limit === null ? '∞' : user.usage_limit}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => resetUsageCount(user)}
+                                      disabled={updatingUserId === user.id || user.usage_count === 0}
+                                    >
+                                      Reset Usage
+                                    </Button>
+                                    <Button
+                                      variant={user.role === 'admin' ? 'destructive' : 'outline'}
+                                      size="sm"
+                                      onClick={() => toggleAdminRole(user)}
+                                      disabled={updatingUserId === user.id || user.id === profile?.id}
+                                    >
+                                      {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
+                    </>
                   )}
                 </CardContent>
               </Card>
