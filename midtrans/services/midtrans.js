@@ -17,7 +17,23 @@ export const createTransaction = async (orderId, amount, customerDetails) => {
             secure: true
         },
         customer_details: customerDetails,
-        enabled_payments: ['gopay', 'shopeepay', 'bri_va', 'bni_va']
+        // Payment Methods Order:
+        // 1. Credit/Debit Card
+        // 2. Virtual Account (Bank Transfer)
+        // 3. QRIS
+        enabled_payments: [
+            // 1. Credit/Debit Card (Visa, Mastercard, JCB, Amex)
+            'credit_card',
+
+            // 2. Virtual Account (Bank Transfer)
+            'bca_va',
+            'bni_va',
+            'bri_va',
+            'permata_va',
+
+            // 3. QRIS - Universal QR Code
+            'other_qris'
+        ]
     };
 
     try {

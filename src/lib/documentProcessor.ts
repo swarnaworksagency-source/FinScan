@@ -120,6 +120,13 @@ export async function processDocument(
       throw new Error(result.error || 'Processing failed');
     }
 
+    // Debug: Log the full result from edge function
+    console.log('=== DEBUG: Edge Function Response ===');
+    console.log('Full result:', result);
+    console.log('extracted_data:', result.extracted_data);
+    console.log('extracted_data.financialData:', result.extracted_data?.financialData);
+    console.log('m_score:', result.m_score);
+
     if (onProgress) {
       onProgress({
         stage: 'completed',

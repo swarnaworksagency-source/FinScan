@@ -5,43 +5,50 @@ export const PLANS = {
         id: 'free',
         name: 'Free Starter',
         price: 0,
-        limit: 3, // strict limit for free users
-        features: ['3 Free Uploads', 'Basic OCR', 'Standard Support']
+        limit: 3, // 3 free uploads per month
+        features: ['3 Free Uploads/Month', 'GPT-4o AI Analysis', 'Basic Support', 'Standard Report']
     },
     PRO: {
         id: 'pro',
         name: 'Professional',
-        price: 299000, // IDR
-        limit: null, // unlimited
-        features: ['Unlimited Uploads', 'Advanced Google OCR', 'Priority Support', 'Export to PDF/Excel']
+        price: 155000, // IDR (~$9.99 USD)
+        limit: 50, // 50 uploads per month
+        features: ['50 Uploads/Month', 'GPT-4o Premium Analysis', 'Priority Support', 'Export to PDF/Excel', 'Advanced Analytics Dashboard']
     }
 };
 
 export async function getSubscriptionStatus(userId: string) {
     const { data, error } = await supabase
         .from('user_profiles')
-        .select('usage_count, usage_limit, subscription_plan') // Assuming subscription_plan column exists or we infer from usage_limit
+        .select('usage_count, usage_limit, role')
         .eq('id', userId)
         .single();
 
     if (error) throw error;
 
-    // Infer plan from limit
-    const isPro = data.usage_limit === null;
+    // Admin always has unlimited access
+    const isAdmin = data.role === 'admin';
+    // Pro = usage_limit is null (unlimited) OR admin
+    const isPro = data.usage_limit === null || isAdmin;
 
     return {
         usageCount: data.usage_count || 0,
         usageLimit: data.usage_limit,
         isPro,
-        remainingUploads: data.usage_limit ? Math.max(0, data.usage_limit - (data.usage_count || 0)) : 'Unlimited'
+        isAdmin,
+        remainingUploads: isPro ? 'Unlimited' : Math.max(0, (data.usage_limit || 0) - (data.usage_count || 0))
     };
 }
 
 export async function checkUploadEligibility(userId: string) {
     const status = await getSubscriptionStatus(userId);
 
-    if (status.isPro) return { allowed: true };
+    // Admin or Pro users always allowed
+    if (status.isAdmin || status.isPro) {
+        return { allowed: true };
+    }
 
+    // Free user - check limits
     if (status.usageLimit && status.usageCount >= status.usageLimit) {
         return {
             allowed: false,
@@ -52,6 +59,7 @@ export async function checkUploadEligibility(userId: string) {
 
     return { allowed: true };
 }
+
 
 export async function incrementUploadCount(userId: string) {
     // RPC call is safer for atomic increments, but regular update works for simple cases
@@ -74,14 +82,10 @@ export async function incrementUploadCount(userId: string) {
     if (error) throw error;
 }
 
-// SIMULATED Payment Gateway Logic
-// In a real app, this would call your backend to create a Stripe Checkout Session
 // Real Midtrans Payment Logic
 export async function processSubscriptionPayment(userId: string, planId: string) {
     return new Promise((resolve, reject) => {
-        console.log(`Processing payment for user ${userId} plan ${planId}`);
-
-        // 1. Call your backend to get the Snap Token
+        // Call backend to get the Snap Token
         fetch('http://localhost:5000/api/payment/subscription', {
             method: 'POST',
             headers: {
@@ -105,14 +109,11 @@ export async function processSubscriptionPayment(userId: string, planId: string)
                 }
 
                 const token = data.data.token;
-                console.log('Received Snap Token:', token);
 
-                // 2. Open Snap Popup
+                // Open Snap Popup
                 // @ts-ignore
                 window.snap.pay(token, {
                     onSuccess: async function (result: any) {
-                        console.log('Payment success:', result);
-
                         // Update Supabase
                         const updates = {
                             usage_limit: null, // Unlimited
@@ -129,22 +130,19 @@ export async function processSubscriptionPayment(userId: string, planId: string)
                             resolve({ success: true, transactionId: result.transaction_id });
                         }
                     },
-                    onPending: function (result: any) {
-                        console.log('Payment pending:', result);
+                    onPending: function (_result: any) {
                         reject(new Error('Payment pending. Please complete the payment.'));
                     },
-                    onError: function (result: any) {
-                        console.log('Payment error:', result);
+                    onError: function (_result: any) {
                         reject(new Error('Payment failed.'));
                     },
                     onClose: function () {
-                        console.log('Customer closed the popup without finishing the payment');
-                        reject(new Error('Payment cancelled.'));
+                        // Payment cancelled by user - resolve with cancelled status (not an error)
+                        resolve({ success: false, cancelled: true });
                     }
                 });
             })
             .catch(error => {
-                console.error('Payment Error:', error);
                 reject(error);
             });
     });

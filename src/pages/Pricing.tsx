@@ -22,20 +22,27 @@ export default function Pricing() {
 
         setLoading(true);
         try {
-            // Simulate Stripe/Gateway popup
-            await processSubscriptionPayment(user.id, PLANS.PRO.id);
+            const result = await processSubscriptionPayment(user.id, PLANS.PRO.id) as { success: boolean; cancelled?: boolean; transactionId?: string };
 
-            toast({
-                title: "Subscription Active!",
-                description: "You have successfully upgraded to the Professional plan.",
-                variant: "default",
-                className: "bg-green-50 border-green-200 text-green-800"
-            });
+            // If payment was cancelled by user, just return to normal state
+            if (result.cancelled) {
+                setLoading(false);
+                return;
+            }
 
-            // Give user a moment to see the success state
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 1500);
+            if (result.success) {
+                toast({
+                    title: "Subscription Active!",
+                    description: "You have successfully upgraded to the Professional plan.",
+                    variant: "default",
+                    className: "bg-green-50 border-green-200 text-green-800"
+                });
+
+                // Give user a moment to see the success state
+                setTimeout(() => {
+                    navigate('/dashboard');
+                }, 1500);
+            }
 
         } catch (error: any) {
             toast({
@@ -112,7 +119,7 @@ export default function Pricing() {
                         <CardContent className="flex-1">
                             <div className="mb-6 flex items-baseline">
                                 <span className="text-4xl font-bold text-slate-900">IDR {PLANS.PRO.price.toLocaleString()}</span>
-                                <span className="ml-2 text-xl text-slate-500">/lifetime</span>
+                                <span className="ml-2 text-xl text-slate-500">/month</span>
                             </div>
                             <ul className="space-y-4">
                                 {PLANS.PRO.features.map((feature, i) => (

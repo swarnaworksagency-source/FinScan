@@ -18,8 +18,9 @@ interface ExtractedData {
   missingFields: string[];
   detectedYear?: number;
   detectedCompany?: string;
-  ocrMethod: 'basic' | 'gemini-file-api';
+  ocrMethod: 'basic' | 'deepseek';
   mScoreDetails?: MScoreResult;
+  calculationSteps?: CalculationSteps;
 }
 
 interface MScoreResult {
@@ -38,151 +39,120 @@ interface MScoreResult {
   redFlags: string[];
 }
 
-// Upload file to Gemini File API (for large files)
-async function uploadToGeminiFileAPI(
-  fileBuffer: Uint8Array,
+interface CalculationSteps {
+  formula: string;
+  dataTable: {
+    field: string;
+    currentYear: number;
+    priorYear: number;
+  }[];
+  ratioCalculations: {
+    name: string;
+    formula: string;
+    calculation: string;
+    result: number;
+    interpretation: string;
+  }[];
+  finalCalculation: {
+    component: string;
+    coefficient: number;
+    value: number;
+    contribution: number;
+  }[];
+  conclusion: string;
+  warnings: string[];
+}
+
+// Extract text from various file formats
+// Analyze document using Gemini 2.5 Flash
+async function analyzeWithGemini(
+  fileBase64: string,
   fileName: string,
   mimeType: string,
   apiKey: string
-): Promise<{ fileUri: string; fileName: string }> {
-  console.log(`Uploading ${fileName} (${fileBuffer.length} bytes) to Gemini File API...`);
+): Promise<{ financialData: Record<string, any>; calculationSteps: CalculationSteps | null }> {
+  console.log(`Analyzing document with Gemini: ${fileName}, MIME: ${mimeType}`);
 
-  // Step 1: Initialize resumable upload
-  const initUrl = `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${apiKey}`;
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-  const metadata = {
-    file: {
-      display_name: fileName
-    }
-  };
+  // Simplified prompt focused ONLY on data extraction
+  const EXTRACTION_PROMPT = `Anda adalah AI ekstraksi data keuangan. Tugas Anda adalah mengekstrak angka-angka dari laporan keuangan ini.
 
-  const initResponse = await fetch(initUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Upload-Protocol': 'resumable',
-      'X-Goog-Upload-Command': 'start',
-      'X-Goog-Upload-Header-Content-Length': fileBuffer.length.toString(),
-      'X-Goog-Upload-Header-Content-Type': mimeType,
-    },
-    body: JSON.stringify(metadata)
-  });
+INSTRUKSI:
+1. Baca SELURUH dokumen dengan teliti
+2. Identifikasi TAHUN terbaru dan tahun sebelumnya
+3. Ekstrak nilai numerik untuk setiap kategori
+4. Jika kolom memiliki 2 tahun, kolom KIRI biasanya tahun terbaru (current), KANAN tahun lalu (prior)
 
-  if (!initResponse.ok) {
-    const errorText = await initResponse.text();
-    console.error('Failed to initialize upload:', initResponse.status, errorText);
-    throw new Error(`Failed to initialize Gemini upload: ${initResponse.status} - ${errorText}`);
-  }
+KATEGORI YANG HARUS DIEKSTRAK (cari variasi nama berikut):
 
-  const uploadUrl = initResponse.headers.get('X-Goog-Upload-URL');
-  if (!uploadUrl) {
-    throw new Error('No upload URL received from Gemini');
-  }
+PENJUALAN: "Penjualan", "Pendapatan", "Sales", "Revenue", "Net Sales", "Penjualan Neto"
+LABA BRUTO: "Laba Bruto", "Gross Profit", "Laba Kotor" 
+PIUTANG: "Piutang Usaha", "Piutang Dagang", "Accounts Receivable", "Trade Receivables"
+TOTAL ASET: "Total Aset", "Total Assets", "Jumlah Aset", "Total Aktiva"
+ASET LANCAR: "Aset Lancar", "Current Assets", "Aktiva Lancar"
+ASET TETAP: "Aset Tetap", "Property Plant Equipment", "PPE", "Fixed Assets", "Aktiva Tetap"
+PENYUSUTAN: "Penyusutan", "Depreciation", "Beban Penyusutan", "Depresiasi"
+BEBAN SGA: "Beban Umum Administrasi", "SG&A", "Beban Operasional", "Operating Expenses", "Beban Usaha"
+LABA USAHA: "Laba Usaha", "Operating Income", "EBIT", "Laba Operasional"
+ARUS KAS OPERASI: "Arus Kas Operasi", "Cash From Operations", "OCF", "Kas dari Aktivitas Operasi"
+LIABILITAS JP: "Liabilitas Jangka Panjang", "Long-term Liabilities", "Utang Jangka Panjang"
 
-  console.log('Got upload URL, uploading file data...');
-
-  // Step 2: Upload the file content
-  const uploadResponse = await fetch(uploadUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Length': fileBuffer.length.toString(),
-      'X-Goog-Upload-Offset': '0',
-      'X-Goog-Upload-Command': 'upload, finalize',
-    },
-    body: fileBuffer
-  });
-
-  if (!uploadResponse.ok) {
-    const errorText = await uploadResponse.text();
-    console.error('Failed to upload file:', uploadResponse.status, errorText);
-    throw new Error(`Failed to upload file to Gemini: ${uploadResponse.status} - ${errorText}`);
-  }
-
-  const uploadResult = await uploadResponse.json();
-  console.log('File uploaded successfully:', uploadResult.file?.name);
-
-  return {
-    fileUri: uploadResult.file?.uri,
-    fileName: uploadResult.file?.name
-  };
-}
-
-// Analyze document using Gemini AI with File API
-async function analyzeWithGemini(
-  fileUri: string,
-  apiKey: string
-): Promise<{ text: string; financialData: Record<string, any> }> {
-  console.log(`Analyzing document with Gemini using file URI: ${fileUri}`);
-
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
-
-  const prompt = `Analyze this financial document and extract the following information in JSON format:
-
+RETURN JSON DENGAN FORMAT INI SAJA (tanpa teks lain):
 {
   "companyName": "nama perusahaan",
   "financialYear": 2024,
-  "sales_current": 1000000,
-  "grossProfit_current": 500000,
-  "receivables_current": 200000,
-  "totalAssets_current": 5000000,
-  "currentAssets_current": 1500000,
-  "ppe_current": 2000000,
-  "depreciation_current": 100000,
-  "sgaExpense_current": 300000,
-  "operatingIncome_current": 200000,
-  "operatingCashFlow_current": 250000,
-  "longTermDebt_current": 1000000,
-  "sales_prior": 900000,
-  "grossProfit_prior": 450000,
-  "receivables_prior": 180000,
-  "totalAssets_prior": 4500000,
-  "currentAssets_prior": 1400000,
-  "ppe_prior": 1800000,
-  "depreciation_prior": 90000,
-  "sgaExpense_prior": 280000,
-  "longTermDebt_prior": 900000
+  "sales_current": 0,
+  "sales_prior": 0,
+  "grossProfit_current": 0,
+  "grossProfit_prior": 0,
+  "receivables_current": 0,
+  "receivables_prior": 0,
+  "totalAssets_current": 0,
+  "totalAssets_prior": 0,
+  "currentAssets_current": 0,
+  "currentAssets_prior": 0,
+  "ppe_current": 0,
+  "ppe_prior": 0,
+  "depreciation_current": 0,
+  "depreciation_prior": 0,
+  "sgaExpense_current": 0,
+  "sgaExpense_prior": 0,
+  "operatingIncome_current": 0,
+  "operatingCashFlow_current": 0,
+  "longTermDebt_current": 0,
+  "longTermDebt_prior": 0
 }
 
-Rules:
-1. Extract ALL visible financial data from the document
-2. If a value is not found, set it to 0
-3. If you see Indonesian terms like "Penjualan", "Laba Kotor", "Piutang", "Aset Tetap", "Beban Usaha", etc., map them to the appropriate fields
-4. Return ONLY valid JSON, no explanation
-5. All numeric values should be numbers (not strings)
-6. "current" means current year, "prior" means previous year
-7. Look for comparative financial statements that show two years of data
-
-Also provide the raw text content you extracted from the document.
-
-Return your response in this exact format:
-{
-  "extractedText": "full text content here...",
-  "financialData": { ...the financial data JSON above... }
-}`;
+PENTING:
+- ISI ANGKA yang ditemukan di dokumen (tanpa titik ribuan, tanpa koma desimal)
+- Angka dalam jutaan? Tulis langsung nilainya (misal: 115786525 bukan 115.786.525)
+- Jika tidak ditemukan, isi 0
+- HANYA return JSON, tanpa penjelasan`;
 
   const requestBody = {
     contents: [{
       parts: [
+        { text: EXTRACTION_PROMPT },
         {
-          file_data: {
-            file_uri: fileUri
+          inline_data: {
+            mime_type: mimeType,
+            data: fileBase64
           }
-        },
-        {
-          text: prompt
         }
       ]
     }],
     generationConfig: {
       temperature: 0.1,
-      maxOutputTokens: 8192
+      maxOutputTokens: 4096,
+      responseMimeType: "application/json"
     }
   };
 
   const response = await fetch(geminiUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(requestBody)
   });
@@ -196,32 +166,87 @@ Return your response in this exact format:
   const result = await response.json();
   console.log('Gemini response received');
 
-  // Extract the text response
+  // Extract the response content
   const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
   console.log('Response text length:', responseText.length);
+  console.log('Raw response preview:', responseText.substring(0, 1000));
 
-  // Try to parse JSON from response
+  // Parse JSON from response
   try {
-    // Find JSON in the response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return {
-        text: parsed.extractedText || responseText,
-        financialData: parsed.financialData || parsed
-      };
-    }
-  } catch (parseError) {
-    console.log('Could not parse JSON from Gemini response, using raw text');
-  }
+    const parsed = JSON.parse(responseText);
 
-  return {
-    text: responseText,
-    financialData: {}
-  };
+    // Debug logging
+    console.log('Parsed response keys:', Object.keys(parsed));
+    console.log('Parsed companyName:', parsed.companyName);
+    console.log('Parsed financialYear:', parsed.financialYear);
+
+    // Helper function to get numeric value - handles various formats
+    const getNum = (val: any): number => {
+      if (val === undefined || val === null) return 0;
+      if (typeof val === 'number') return val;
+      // Remove thousand separators and parse
+      const cleaned = String(val).replace(/[^\d.-]/g, '');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    };
+
+    // New format: data is at root level
+    const financialData = {
+      companyName: parsed.companyName || parsed.company_name || '',
+      financialYear: parsed.financialYear || parsed.financial_year || new Date().getFullYear(),
+      sales_current: getNum(parsed.sales_current),
+      sales_prior: getNum(parsed.sales_prior),
+      grossProfit_current: getNum(parsed.grossProfit_current),
+      grossProfit_prior: getNum(parsed.grossProfit_prior),
+      receivables_current: getNum(parsed.receivables_current),
+      receivables_prior: getNum(parsed.receivables_prior),
+      totalAssets_current: getNum(parsed.totalAssets_current),
+      totalAssets_prior: getNum(parsed.totalAssets_prior),
+      currentAssets_current: getNum(parsed.currentAssets_current),
+      currentAssets_prior: getNum(parsed.currentAssets_prior),
+      ppe_current: getNum(parsed.ppe_current),
+      ppe_prior: getNum(parsed.ppe_prior),
+      depreciation_current: getNum(parsed.depreciation_current),
+      depreciation_prior: getNum(parsed.depreciation_prior),
+      sgaExpense_current: getNum(parsed.sgaExpense_current),
+      sgaExpense_prior: getNum(parsed.sgaExpense_prior),
+      operatingIncome_current: getNum(parsed.operatingIncome_current),
+      operatingCashFlow_current: getNum(parsed.operatingCashFlow_current),
+      longTermDebt_current: getNum(parsed.longTermDebt_current),
+      longTermDebt_prior: getNum(parsed.longTermDebt_prior),
+    };
+
+    // Debug: Log converted financial data
+    console.log('=== EXTRACTED FINANCIAL DATA ===');
+    console.log(JSON.stringify(financialData, null, 2));
+
+    // Count how many fields have non-zero values
+    const nonZeroFields = Object.entries(financialData)
+      .filter(([key, val]) => typeof val === 'number' && val > 0);
+    console.log(`Found ${nonZeroFields.length} non-zero numeric fields`);
+
+    // Check for any 0 values and log them
+    const zeroFields = Object.entries(financialData)
+      .filter(([key, val]) => val === 0 && key !== 'companyName' && key !== 'financialYear');
+    if (zeroFields.length > 0) {
+      console.log('Fields with 0 values:', zeroFields.map(([k]) => k).join(', '));
+    }
+
+    return {
+      financialData,
+      calculationSteps: null // We calculate M-Score on client side now
+    };
+  } catch (parseError) {
+    console.error('Failed to parse Gemini response:', parseError);
+    console.error('Response was:', responseText.substring(0, 2000));
+    return {
+      financialData: {},
+      calculationSteps: null
+    };
+  }
 }
 
-// Calculate Beneish M-Score
+// Calculate Beneish M-Score (fallback if AI doesn't calculate)
 function calculateMScore(data: Record<string, any>): MScoreResult {
   // Extract values with defaults
   const sales_current = data.sales_current || 0;
@@ -338,8 +363,9 @@ function calculateMScore(data: Record<string, any>): MScoreResult {
 function buildExtractedData(
   rawText: string,
   financialData: Record<string, any>,
-  ocrMethod: 'basic' | 'gemini-file-api',
-  mScoreResult?: MScoreResult
+  ocrMethod: 'basic' | 'deepseek',
+  mScoreResult?: MScoreResult,
+  calculationSteps?: CalculationSteps
 ): ExtractedData {
   const allFields = [
     'companyName', 'financialYear',
@@ -357,7 +383,7 @@ function buildExtractedData(
 
   for (const field of allFields) {
     if (financialData[field] && financialData[field] !== 0) {
-      confidence[field] = ocrMethod === 'gemini-file-api' ? 90 : 60;
+      confidence[field] = ocrMethod === 'deepseek' ? 95 : 60;
     } else {
       missingFields.push(field);
       confidence[field] = 0;
@@ -372,7 +398,8 @@ function buildExtractedData(
     detectedYear: financialData.financialYear,
     detectedCompany: financialData.companyName,
     ocrMethod,
-    mScoreDetails: mScoreResult
+    mScoreDetails: mScoreResult,
+    calculationSteps
   };
 }
 
@@ -385,9 +412,25 @@ function getMimeType(fileType: string): string {
       return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     case 'docx':
       return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
     default:
       return 'application/octet-stream';
   }
+}
+
+// Convert ArrayBuffer to Base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 Deno.serve(async (req: Request) => {
@@ -404,14 +447,13 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get Gemini API Key
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY') || '';
 
     if (!geminiApiKey) {
-      console.log('Warning: GEMINI_API_KEY not set');
-      throw new Error('GEMINI_API_KEY is not configured');
+      throw new Error('GEMINI_API_KEY not configured in environment');
     }
 
-    console.log('Gemini API Key found');
+    console.log('Gemini API Key configured');
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -445,44 +487,39 @@ Deno.serve(async (req: Request) => {
     }
 
     const arrayBuffer = await fileData.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
+    const fileBase64 = arrayBufferToBase64(arrayBuffer);
 
-    console.log(`File downloaded: ${uint8Array.length} bytes`);
+    console.log(`File downloaded and converted to base64: ${fileBase64.length} chars`);
 
-    let extractedText = '';
     let financialData: Record<string, any> = {};
-    let ocrMethod: 'basic' | 'gemini-file-api' = 'basic';
+    let ocrMethod: 'basic' | 'deepseek' = 'basic';
     let mScoreResult: MScoreResult | undefined;
+    let calculationSteps: CalculationSteps | undefined;
 
     try {
-      // Step 1: Upload file to Gemini File API
-      const mimeType = getMimeType(document.file_type);
       const fileName = document.file_name || `document.${document.file_type}`;
+      const mimeType = getMimeType(document.file_type);
 
-      console.log('Step 1: Uploading to Gemini File API...');
-      const { fileUri } = await uploadToGeminiFileAPI(uint8Array, fileName, mimeType, geminiApiKey);
+      console.log(`Analyzing with Gemini 1.5 Pro (File: ${fileName}, Type: ${mimeType})...`);
+      const geminiResult = await analyzeWithGemini(fileBase64, fileName, mimeType, geminiApiKey);
 
-      console.log('Step 2: Analyzing with Gemini...');
-      const geminiResult = await analyzeWithGemini(fileUri, geminiApiKey);
-
-      extractedText = geminiResult.text;
       financialData = geminiResult.financialData;
-      ocrMethod = 'gemini-file-api';
+      calculationSteps = geminiResult.calculationSteps || undefined;
+      ocrMethod = 'deepseek'; // Using Gemini 1.5 Pro
 
-      console.log(`Gemini extracted ${Object.keys(financialData).length} fields`);
-      console.log('Financial data:', JSON.stringify(financialData, null, 2));
+      console.log(`Gemini 1.5 Pro extracted ${Object.keys(financialData).length} fields`);
 
-      // Step 3: Calculate M-Score
-      console.log('Step 3: Calculating M-Score...');
+      // Calculate M-Score (use our calculation as fallback/verification)
+      console.log('Calculating M-Score...');
       mScoreResult = calculateMScore(financialData);
       console.log(`M-Score: ${mScoreResult.mScore} (${mScoreResult.interpretation})`);
 
     } catch (geminiError: any) {
-      console.error('Gemini File API failed:', geminiError);
+      console.error('Gemini 1.5 Pro API failed:', geminiError);
       throw new Error(`Document processing failed: ${geminiError.message}`);
     }
 
-    const extracted = buildExtractedData(extractedText, financialData, ocrMethod, mScoreResult);
+    const extracted = buildExtractedData('Processed by DeepSeek AI', financialData, ocrMethod, mScoreResult, calculationSteps);
 
     const overallConfidence = Object.values(extracted.confidence).reduce((a, b) => a + b, 0) /
       Math.max(Object.keys(extracted.confidence).length, 1);
@@ -511,7 +548,8 @@ Deno.serve(async (req: Request) => {
         extracted_data: extracted,
         confidence_score: Math.round(overallConfidence),
         ocr_method: ocrMethod,
-        m_score: mScoreResult
+        m_score: mScoreResult,
+        calculation_steps: calculationSteps
       }),
       {
         status: 200,

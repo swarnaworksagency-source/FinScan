@@ -103,6 +103,46 @@ export interface DocumentUpload {
   processed_at: string | null;
 }
 
+export interface MScoreDetailsFromAPI {
+  mScore: number;
+  interpretation: 'HIGH_RISK' | 'MODERATE_RISK' | 'LOW_RISK';
+  components: {
+    DSRI: { value: number; description: string };
+    GMI: { value: number; description: string };
+    AQI: { value: number; description: string };
+    SGI: { value: number; description: string };
+    DEPI: { value: number; description: string };
+    SGAI: { value: number; description: string };
+    LVGI: { value: number; description: string };
+    TATA: { value: number; description: string };
+  };
+  redFlags: string[];
+}
+
+export interface CalculationSteps {
+  formula: string;
+  dataTable: Array<{
+    field: string;
+    currentYear: number;
+    priorYear: number;
+  }>;
+  ratioCalculations: Array<{
+    name: string;
+    formula: string;
+    calculation: string;
+    result: number;
+    interpretation: string;
+  }>;
+  finalCalculation: Array<{
+    component: string;
+    coefficient: number;
+    value: number;
+    contribution: number;
+  }>;
+  conclusion: string;
+  warnings: string[];
+}
+
 export interface ExtractedData {
   financialData: Partial<FinancialData>;
   confidence: Record<string, number>;
@@ -110,7 +150,9 @@ export interface ExtractedData {
   missingFields: string[];
   detectedYear?: number;
   detectedCompany?: string;
-  ocrMethod?: 'basic' | 'google_vision' | 'google_vision_nlp';
+  ocrMethod?: 'basic' | 'google_vision' | 'google_vision_nlp' | 'deepseek';
+  mScoreDetails?: MScoreDetailsFromAPI;
+  calculationSteps?: CalculationSteps;
 }
 
 export interface FieldConfidence {
