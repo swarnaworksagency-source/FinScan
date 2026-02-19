@@ -270,8 +270,8 @@ export default function UploadWithOCR() {
         sales_prior: data.financialData?.sales_prior || 0,
         cogs_current: data.financialData?.cogs_current || 0,
         cogs_prior: data.financialData?.cogs_prior || 0,
-        grossProfit_current: data.financialData?.grossProfit_current || 0,
-        grossProfit_prior: data.financialData?.grossProfit_prior || 0,
+        grossProfit_current: data.financialData?.grossProfit_current || ((data.financialData?.sales_current || 0) - (data.financialData?.cogs_current || 0)) || 0,
+        grossProfit_prior: data.financialData?.grossProfit_prior || ((data.financialData?.sales_prior || 0) - (data.financialData?.cogs_prior || 0)) || 0,
         receivables_current: data.financialData?.receivables_current || 0,
         receivables_prior: data.financialData?.receivables_prior || 0,
         receivables_related_current: data.financialData?.receivables_related_current || 0,
@@ -304,7 +304,14 @@ export default function UploadWithOCR() {
         generalExpense_prior: data.financialData?.generalExpense_prior || 0,
         adminExpense_current: data.financialData?.adminExpense_current || 0,
         adminExpense_prior: data.financialData?.adminExpense_prior || 0,
-        operatingIncome_current: data.financialData?.operatingIncome_current || 0,
+        operatingIncome_current: data.financialData?.operatingIncome_current ||
+          ((data.financialData?.grossProfit_current || ((data.financialData?.sales_current || 0) - (data.financialData?.cogs_current || 0))) -
+            Math.max(
+              (data.financialData?.sellingExpense_current || 0) +
+              (data.financialData?.generalExpense_current || 0) +
+              (data.financialData?.adminExpense_current || 0),
+              data.financialData?.sgaExpense_current || 0
+            )) || 0,
         operatingCashFlow_current: data.financialData?.operatingCashFlow_current || 0,
         taxPayable_current: data.financialData?.taxPayable_current || 0,
         taxPayable_prior: data.financialData?.taxPayable_prior || 0,
