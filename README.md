@@ -30,3 +30,5 @@ If your `.env` contains secrets (e.g., Supabase keys):
 2. Click **"Add a variable"** (or "Import from .env").
 3. Add the same Key-Value pairs found in your local `.env`.
    - *Note*: Ensure client-side variables start with `VITE_` (e.g., `VITE_SUPABASE_URL`).
+
+<!-- Deployment trigger: 2026-02-20 -->
