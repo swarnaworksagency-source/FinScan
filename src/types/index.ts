@@ -2,25 +2,43 @@ export interface FinancialData {
   companyName: string;
   financialYear: number;
   sales_current: number;
+  cogs_current: number; // Cost of Goods Sold
   grossProfit_current: number;
   receivables_current: number;
+  receivables_related_current?: number; // New for DSRI (Round 3)
   totalAssets_current: number;
   currentAssets_current: number;
   ppe_current: number;
   depreciation_current: number;
-  sgaExpense_current: number;
+  sgaExpense_current: number; // Calculated or direct input
+  sellingExpense_current: number; // New
+  generalExpense_current: number; // New
+  adminExpense_current: number; // New
   operatingIncome_current: number;
-  operatingCashFlow_current: number;
+  operatingCashFlow_current: number; // Kept for reference, though TATA formula changes
+  cash_current: number; // New for TATA
+  taxPayable_current: number; // New for TATA
   longTermDebt_current: number;
+  currentLiabilities_current: number; // New for LVGI and WC
+  oilAndGas_current?: number;
+  oilAndGas_prior?: number;
   sales_prior: number;
+  cogs_prior: number; // New
   grossProfit_prior: number;
   receivables_prior: number;
+  receivables_related_prior?: number; // New for DSRI (Round 3)
   totalAssets_prior: number;
   currentAssets_prior: number;
   ppe_prior: number;
   depreciation_prior: number;
   sgaExpense_prior: number;
+  sellingExpense_prior: number; // New
+  generalExpense_prior: number; // New
+  adminExpense_prior: number; // New
+  cash_prior: number; // New
+  taxPayable_prior: number; // New
   longTermDebt_prior: number;
+  currentLiabilities_prior: number; // New
 }
 
 export interface MScoreComponents {

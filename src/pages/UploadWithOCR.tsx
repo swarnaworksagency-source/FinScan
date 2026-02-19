@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import {
   AlertCircle, ArrowLeft, CheckCircle2, FileText, Sparkles,
   Upload, Brain, Calculator, TrendingUp, XCircle,
-  Download, AlertTriangle, Info, RefreshCw, Edit3
+  Download, AlertTriangle, Info, RefreshCw, Edit3, ArrowRight
 } from 'lucide-react';
 import { ProcessingStatus } from '@/types';
 import { supabase } from '@/lib/supabase';
@@ -31,24 +31,42 @@ interface FinancialDataInput {
   financialYear: number;
   sales_current: number;
   sales_prior: number;
+  cogs_current: number;
+  cogs_prior: number;
   grossProfit_current: number;
   grossProfit_prior: number;
   receivables_current: number;
   receivables_prior: number;
+  receivables_related_current: number;
+  receivables_related_prior: number;
   totalAssets_current: number;
   totalAssets_prior: number;
   currentAssets_current: number;
   currentAssets_prior: number;
+  cash_current: number;
+  cash_prior: number;
   ppe_current: number;
   ppe_prior: number;
   depreciation_current: number;
   depreciation_prior: number;
   sgaExpense_current: number;
   sgaExpense_prior: number;
+  sellingExpense_current: number;
+  sellingExpense_prior: number;
+  generalExpense_current: number;
+  generalExpense_prior: number;
+  adminExpense_current: number;
+  adminExpense_prior: number;
   operatingIncome_current: number;
   operatingCashFlow_current: number;
+  taxPayable_current: number;
+  taxPayable_prior: number;
   longTermDebt_current: number;
   longTermDebt_prior: number;
+  currentLiabilities_current: number;
+  currentLiabilities_prior: number;
+  oilAndGas_current: number;
+  oilAndGas_prior: number;
 }
 
 interface AnalysisResult {
@@ -75,24 +93,42 @@ const INITIAL_FINANCIAL_DATA: FinancialDataInput = {
   financialYear: new Date().getFullYear(),
   sales_current: 0,
   sales_prior: 0,
+  cogs_current: 0,
+  cogs_prior: 0,
   grossProfit_current: 0,
   grossProfit_prior: 0,
   receivables_current: 0,
   receivables_prior: 0,
+  receivables_related_current: 0,
+  receivables_related_prior: 0,
   totalAssets_current: 0,
   totalAssets_prior: 0,
   currentAssets_current: 0,
   currentAssets_prior: 0,
+  cash_current: 0,
+  cash_prior: 0,
   ppe_current: 0,
   ppe_prior: 0,
   depreciation_current: 0,
   depreciation_prior: 0,
   sgaExpense_current: 0,
   sgaExpense_prior: 0,
+  sellingExpense_current: 0,
+  sellingExpense_prior: 0,
+  generalExpense_current: 0,
+  generalExpense_prior: 0,
+  adminExpense_current: 0,
+  adminExpense_prior: 0,
   operatingIncome_current: 0,
   operatingCashFlow_current: 0,
+  taxPayable_current: 0,
+  taxPayable_prior: 0,
   longTermDebt_current: 0,
   longTermDebt_prior: 0,
+  currentLiabilities_current: 0,
+  currentLiabilities_prior: 0,
+  oilAndGas_current: 0,
+  oilAndGas_prior: 0,
 };
 
 export default function UploadWithOCR() {
@@ -232,24 +268,42 @@ export default function UploadWithOCR() {
         financialYear: data.financialData?.financialYear || new Date().getFullYear(),
         sales_current: data.financialData?.sales_current || 0,
         sales_prior: data.financialData?.sales_prior || 0,
+        cogs_current: data.financialData?.cogs_current || 0,
+        cogs_prior: data.financialData?.cogs_prior || 0,
         grossProfit_current: data.financialData?.grossProfit_current || 0,
         grossProfit_prior: data.financialData?.grossProfit_prior || 0,
         receivables_current: data.financialData?.receivables_current || 0,
         receivables_prior: data.financialData?.receivables_prior || 0,
+        receivables_related_current: data.financialData?.receivables_related_current || 0,
+        receivables_related_prior: data.financialData?.receivables_related_prior || 0,
         totalAssets_current: data.financialData?.totalAssets_current || 0,
         totalAssets_prior: data.financialData?.totalAssets_prior || 0,
         currentAssets_current: data.financialData?.currentAssets_current || 0,
         currentAssets_prior: data.financialData?.currentAssets_prior || 0,
+        cash_current: data.financialData?.cash_current || 0,
+        cash_prior: data.financialData?.cash_prior || 0,
         ppe_current: data.financialData?.ppe_current || 0,
         ppe_prior: data.financialData?.ppe_prior || 0,
         depreciation_current: data.financialData?.depreciation_current || 0,
         depreciation_prior: data.financialData?.depreciation_prior || 0,
         sgaExpense_current: data.financialData?.sgaExpense_current || 0,
         sgaExpense_prior: data.financialData?.sgaExpense_prior || 0,
+        sellingExpense_current: data.financialData?.sellingExpense_current || 0,
+        sellingExpense_prior: data.financialData?.sellingExpense_prior || 0,
+        generalExpense_current: data.financialData?.generalExpense_current || 0,
+        generalExpense_prior: data.financialData?.generalExpense_prior || 0,
+        adminExpense_current: data.financialData?.adminExpense_current || 0,
+        adminExpense_prior: data.financialData?.adminExpense_prior || 0,
         operatingIncome_current: data.financialData?.operatingIncome_current || 0,
         operatingCashFlow_current: data.financialData?.operatingCashFlow_current || 0,
+        taxPayable_current: data.financialData?.taxPayable_current || 0,
+        taxPayable_prior: data.financialData?.taxPayable_prior || 0,
         longTermDebt_current: data.financialData?.longTermDebt_current || 0,
         longTermDebt_prior: data.financialData?.longTermDebt_prior || 0,
+        currentLiabilities_current: data.financialData?.currentLiabilities_current || 0,
+        currentLiabilities_prior: data.financialData?.currentLiabilities_prior || 0,
+        oilAndGas_current: data.financialData?.oilAndGas_current || 0,
+        oilAndGas_prior: data.financialData?.oilAndGas_prior || 0,
       };
 
       // Check if extraction was successful (not all zeros)
@@ -424,15 +478,6 @@ export default function UploadWithOCR() {
       doc.setDrawColor(color[0], color[1], color[2]);
       doc.setLineWidth(0.5);
       doc.line(margin, y, pageWidth - margin, y);
-    };
-
-    const addNewPageIfNeeded = (requiredSpace: number) => {
-      if (yPos + requiredSpace > pageHeight - margin) {
-        doc.addPage();
-        yPos = margin;
-        return true;
-      }
-      return false;
     };
 
     // Colors based on risk level
@@ -658,13 +703,20 @@ export default function UploadWithOCR() {
       { label: 'Penjualan Neto', current: analysisResult.financialData.sales_current, prior: analysisResult.financialData.sales_prior },
       { label: 'Laba Bruto', current: analysisResult.financialData.grossProfit_current, prior: analysisResult.financialData.grossProfit_prior },
       { label: 'Piutang Usaha', current: analysisResult.financialData.receivables_current, prior: analysisResult.financialData.receivables_prior },
+      { label: 'Piutang Pihak Berelasi', current: analysisResult.financialData.receivables_related_current || 0, prior: analysisResult.financialData.receivables_related_prior || 0 },
       { label: 'Total Aset', current: analysisResult.financialData.totalAssets_current, prior: analysisResult.financialData.totalAssets_prior },
       { label: 'Aset Lancar', current: analysisResult.financialData.currentAssets_current, prior: analysisResult.financialData.currentAssets_prior },
       { label: 'Aset Tetap (PP&E)', current: analysisResult.financialData.ppe_current, prior: analysisResult.financialData.ppe_prior },
+      { label: 'Aset Migas (Oil & Gas)', current: analysisResult.financialData.oilAndGas_current || 0, prior: analysisResult.financialData.oilAndGas_prior || 0 },
       { label: 'Penyusutan', current: analysisResult.financialData.depreciation_current, prior: analysisResult.financialData.depreciation_prior },
-      { label: 'Beban SG&A', current: analysisResult.financialData.sgaExpense_current, prior: analysisResult.financialData.sgaExpense_prior },
+      { label: 'Beban Penjualan', current: analysisResult.financialData.sellingExpense_current || 0, prior: analysisResult.financialData.sellingExpense_prior || 0 },
+      { label: 'Beban Umum', current: analysisResult.financialData.generalExpense_current || 0, prior: analysisResult.financialData.generalExpense_prior || 0 },
+      { label: 'Beban Administrasi', current: analysisResult.financialData.adminExpense_current || 0, prior: analysisResult.financialData.adminExpense_prior || 0 },
+      { label: 'Beban SG&A Total', current: analysisResult.financialData.sgaExpense_current, prior: analysisResult.financialData.sgaExpense_prior },
       { label: 'Laba Usaha', current: analysisResult.financialData.operatingIncome_current, prior: null },
       { label: 'Arus Kas Operasi', current: analysisResult.financialData.operatingCashFlow_current, prior: null },
+      { label: 'Hutang Pajak', current: analysisResult.financialData.taxPayable_current || 0, prior: analysisResult.financialData.taxPayable_prior || 0 },
+      { label: 'Liabilitas Lancar', current: analysisResult.financialData.currentLiabilities_current || 0, prior: analysisResult.financialData.currentLiabilities_prior || 0 },
       { label: 'Liabilitas Jk. Panjang', current: analysisResult.financialData.longTermDebt_current, prior: analysisResult.financialData.longTermDebt_prior },
     ];
 
@@ -737,7 +789,7 @@ export default function UploadWithOCR() {
     yPos += 10;
 
     doc.setFont('helvetica', 'normal');
-    calcData.forEach((item, index) => {
+    calcData.forEach((item) => {
       doc.text(item.comp, margin + 5, yPos + 3);
       doc.text(item.coef, margin + 45, yPos + 3);
       doc.text(item.value, margin + 80, yPos + 3);
@@ -809,24 +861,43 @@ export default function UploadWithOCR() {
   const inputFields = [
     { key: 'sales_current', label: 'Penjualan Neto (t)', section: 'current' },
     { key: 'sales_prior', label: 'Penjualan Neto (t-1)', section: 'prior' },
+    { key: 'cogs_current', label: 'HPP (COGS) (t)', section: 'current' },
+    { key: 'cogs_prior', label: 'HPP (COGS) (t-1)', section: 'prior' },
     { key: 'grossProfit_current', label: 'Laba Bruto (t)', section: 'current' },
     { key: 'grossProfit_prior', label: 'Laba Bruto (t-1)', section: 'prior' },
     { key: 'receivables_current', label: 'Piutang Usaha (t)', section: 'current' },
     { key: 'receivables_prior', label: 'Piutang Usaha (t-1)', section: 'prior' },
+    { key: 'receivables_related_current', label: 'Piutang Pihak Berelasi (t) *', section: 'current' },
+    { key: 'receivables_related_prior', label: 'Piutang Pihak Berelasi (t-1) *', section: 'prior' },
     { key: 'totalAssets_current', label: 'Total Aset (t)', section: 'current' },
     { key: 'totalAssets_prior', label: 'Total Aset (t-1)', section: 'prior' },
     { key: 'currentAssets_current', label: 'Aset Lancar (t)', section: 'current' },
     { key: 'currentAssets_prior', label: 'Aset Lancar (t-1)', section: 'prior' },
+    { key: 'cash_current', label: 'Kas & Setara Kas (t)', section: 'current' },
+    { key: 'cash_prior', label: 'Kas & Setara Kas (t-1)', section: 'prior' },
+    { key: 'ppe_range_start', label: '--- Aset ---', section: 'current' }, // Separator visual (optional, or just place it logically)
     { key: 'ppe_current', label: 'Aset Tetap/PP&E (t)', section: 'current' },
     { key: 'ppe_prior', label: 'Aset Tetap/PP&E (t-1)', section: 'prior' },
+    { key: 'oilAndGas_current', label: 'Aset Migas (t) *', section: 'current' },
+    { key: 'oilAndGas_prior', label: 'Aset Migas (t-1) *', section: 'prior' },
     { key: 'depreciation_current', label: 'Penyusutan (t)', section: 'current' },
     { key: 'depreciation_prior', label: 'Penyusutan (t-1)', section: 'prior' },
-    { key: 'sgaExpense_current', label: 'Beban SG&A (t)', section: 'current' },
-    { key: 'sgaExpense_prior', label: 'Beban SG&A (t-1)', section: 'prior' },
+    { key: 'sellingExpense_current', label: 'Beban Penjualan (t)', section: 'current' },
+    { key: 'sellingExpense_prior', label: 'Beban Penjualan (t-1)', section: 'prior' },
+    { key: 'generalExpense_current', label: 'Beban Umum (t)', section: 'current' },
+    { key: 'generalExpense_prior', label: 'Beban Umum (t-1)', section: 'prior' },
+    { key: 'adminExpense_current', label: 'Beban Administrasi (t)', section: 'current' },
+    { key: 'adminExpense_prior', label: 'Beban Administrasi (t-1)', section: 'prior' },
+    { key: 'sgaExpense_current', label: 'Total SG&A (t)', section: 'current' },
+    { key: 'sgaExpense_prior', label: 'Total SG&A (t-1)', section: 'prior' },
     { key: 'operatingIncome_current', label: 'Laba Usaha (t)', section: 'current' },
     { key: 'operatingCashFlow_current', label: 'Arus Kas Operasi (t)', section: 'current' },
+    { key: 'taxPayable_current', label: 'Hutang Pajak (t)', section: 'current' },
+    { key: 'taxPayable_prior', label: 'Hutang Pajak (t-1)', section: 'prior' },
     { key: 'longTermDebt_current', label: 'Liabilitas Jk. Panjang (t)', section: 'current' },
     { key: 'longTermDebt_prior', label: 'Liabilitas Jk. Panjang (t-1)', section: 'prior' },
+    { key: 'currentLiabilities_current', label: 'Liabilitas Lancar (t)', section: 'current' },
+    { key: 'currentLiabilities_prior', label: 'Liabilitas Lancar (t-1)', section: 'prior' },
   ];
 
   return (
@@ -1025,13 +1096,10 @@ export default function UploadWithOCR() {
               </Button>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={generatePDF}>
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF
-              </Button>
               {savedAnalysisId && (
                 <Button onClick={() => navigate(`/results/${savedAnalysisId}`)}>
-                  Lihat Detail
+                  Lihat Hasil Detail
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               )}
             </div>
@@ -1046,6 +1114,25 @@ export default function UploadWithOCR() {
               Beneish M-Score adalah alat <em>screening</em> awal yang perlu ditelaah lebih lanjut oleh profesional.
             </AlertDescription>
           </Alert>
+
+          {/* Data Quality Warning */}
+          {((analysisResult.financialData.depreciation_prior === 0 && analysisResult.financialData.depreciation_current > 0) ||
+            (analysisResult.financialData.receivables_related_current === 0 && analysisResult.financialData.receivables_related_prior === 0) ||
+            (analysisResult.financialData.oilAndGas_current === 0)) && (
+              <Alert className="bg-amber-50 border-amber-200">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <AlertTitle className="text-amber-800">Verifikasi Data Diperlukan</AlertTitle>
+                <AlertDescription className="text-amber-700">
+                  Beberapa field penting bernilai <strong>0</strong> yang dapat mempengaruhi akurasi (DEPI/DSRI/AQI).
+                  Mohon cek <strong>Edit Data</strong>:
+                  <ul className="list-disc ml-6 mt-1 text-sm">
+                    {analysisResult.financialData.depreciation_prior === 0 && analysisResult.financialData.depreciation_current > 0 && <li>Penyusutan (t-1) kosong/nol</li>}
+                    {analysisResult.financialData.receivables_related_current === 0 && <li>Piutang Pihak Berelasi kosong/nol</li>}
+                    {analysisResult.financialData.oilAndGas_current === 0 && <li>Aset Migas kosong/nol</li>}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
 
           {/* Main Score Result */}
           <Card className={`border-l-4 ${getBorderColor()}`}>

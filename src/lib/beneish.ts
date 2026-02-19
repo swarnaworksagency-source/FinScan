@@ -13,42 +13,69 @@ function safeDiv(numerator: number, denominator: number): number {
 }
 
 export function calculateBeneishMScore(data: FinancialData): MScoreResult {
-  // DSRI = (Piutang_t / Penjualan_t) / (Piutang_t-1 / Penjualan_t-1)
-  const receivablesSalesRatioCurrent = safeDiv(data.receivables_current, data.sales_current);
-  const receivablesSalesRatioPrior = safeDiv(data.receivables_prior, data.sales_prior);
+  // DSRI = [(Piutang_t + PiutangLain_t) / Penjualan_t] / [(Piutang_t-1 + PiutangLain_t-1) / Penjualan_t-1]
+  const totalReceivablesCurrent = data.receivables_current + (data.receivables_related_current || 0);
+  const totalReceivablesPrior = data.receivables_prior + (data.receivables_related_prior || 0);
+
+  const receivablesSalesRatioCurrent = safeDiv(totalReceivablesCurrent, data.sales_current);
+  const receivablesSalesRatioPrior = safeDiv(totalReceivablesPrior, data.sales_prior);
   const dsri = safeDiv(receivablesSalesRatioCurrent, receivablesSalesRatioPrior);
 
-  // GMI = [(Penjualan_t-1 - LK_t-1) / Penjualan_t-1] / [(Penjualan_t - LK_t) / Penjualan_t]
-  // Note: Laba Kotor = Laba Bruto = Gross Profit
-  const grossMarginPrior = safeDiv(data.sales_prior - data.grossProfit_prior, data.sales_prior);
-  const grossMarginCurrent = safeDiv(data.sales_current - data.grossProfit_current, data.sales_current);
+  // GMI = [(LabaKotor_t-1 / Penjualan_t-1)] / [(LabaKotor_t / Penjualan_t)]
+  // If COGS is available, ensure Gross Profit is consistent (Sales - COGS). 
+  // User Note: Previously calculated as COGS ratio, fixed to be Gross Margin.
+  const gpCurrent = data.cogs_current ? (data.sales_current - data.cogs_current) : data.grossProfit_current;
+  const gpPrior = data.cogs_prior ? (data.sales_prior - data.cogs_prior) : data.grossProfit_prior;
+
+  const grossMarginPrior = safeDiv(gpPrior, data.sales_prior);
+  const grossMarginCurrent = safeDiv(gpCurrent, data.sales_current);
   const gmi = safeDiv(grossMarginPrior, grossMarginCurrent);
 
+  // Define Total PPE = PPE + Oil & Gas Assets (for energy/mining companies as per user request)
+  const totalPPECurrent = data.ppe_current + (data.oilAndGas_current || 0);
+  const totalPPEPrior = data.ppe_prior + (data.oilAndGas_prior || 0);
+
   // AQI = [1 - (Aset Lancar_t + PP&E_t) / Total Aset_t] / [1 - (Aset Lancar_t-1 + PP&E_t-1) / Total Aset_t-1]
-  const nonCurrentAssetsCurrent = 1 - safeDiv(data.currentAssets_current + data.ppe_current, data.totalAssets_current);
-  const nonCurrentAssetsPrior = 1 - safeDiv(data.currentAssets_prior + data.ppe_prior, data.totalAssets_prior);
+  const nonCurrentAssetsCurrent = 1 - safeDiv(data.currentAssets_current + totalPPECurrent, data.totalAssets_current);
+  const nonCurrentAssetsPrior = 1 - safeDiv(data.currentAssets_prior + totalPPEPrior, data.totalAssets_prior);
   const aqi = safeDiv(nonCurrentAssetsCurrent, nonCurrentAssetsPrior);
 
   // SGI = Penjualan_t / Penjualan_t-1
   const sgi = safeDiv(data.sales_current, data.sales_prior);
 
   // DEPI = [Dep_t-1 / (PP&E_t-1 + Dep_t-1)] / [Dep_t / (PP&E_t + Dep_t)]
-  const depRatePrior = safeDiv(data.depreciation_prior, data.ppe_prior + data.depreciation_prior);
-  const depRateCurrent = safeDiv(data.depreciation_current, data.ppe_current + data.depreciation_current);
+  const depRatePrior = safeDiv(data.depreciation_prior, totalPPEPrior + data.depreciation_prior);
+  const depRateCurrent = safeDiv(data.depreciation_current, totalPPECurrent + data.depreciation_current);
   const depi = safeDiv(depRatePrior, depRateCurrent);
 
   // SGAI = (SGA_t / Penjualan_t) / (SGA_t-1 / Penjualan_t-1)
-  const sgaRatioCurrent = safeDiv(data.sgaExpense_current, data.sales_current);
-  const sgaRatioPrior = safeDiv(data.sgaExpense_prior, data.sales_prior);
+  // Calculate Total SGA from components if available
+  const sgaSumCurrent = (data.sellingExpense_current || 0) + (data.generalExpense_current || 0) + (data.adminExpense_current || 0);
+  const sgaCurrent = Math.max(sgaSumCurrent, data.sgaExpense_current || 0);
+
+  const sgaSumPrior = (data.sellingExpense_prior || 0) + (data.generalExpense_prior || 0) + (data.adminExpense_prior || 0);
+  const sgaPrior = Math.max(sgaSumPrior, data.sgaExpense_prior || 0);
+
+  const sgaRatioCurrent = safeDiv(sgaCurrent, data.sales_current);
+  const sgaRatioPrior = safeDiv(sgaPrior, data.sales_prior);
   const sgai = safeDiv(sgaRatioCurrent, sgaRatioPrior);
 
-  // TATA = (Laba Usaha_t - Arus Kas Operasi_t) / Total Aset_t
-  const accruals = data.operatingIncome_current - data.operatingCashFlow_current;
+  // TATA = (Change in WC - Change in Cash - Change in Tax Payable - Dep & Amor) / Total Assets
+  // Change in WC = (CA_t - CL_t) - (CA_t-1 - CL_t-1)
+  const wcCurrent = data.currentAssets_current - data.currentLiabilities_current;
+  const wcPrior = data.currentAssets_prior - data.currentLiabilities_prior;
+  const changeInWC = wcCurrent - wcPrior;
+
+  const changeInCash = data.cash_current - data.cash_prior;
+  const changeInTax = data.taxPayable_current - data.taxPayable_prior;
+
+  const accruals = changeInWC - changeInCash - changeInTax - data.depreciation_current;
   const tata = safeDiv(accruals, data.totalAssets_current);
 
-  // LVGI = [(Liabilitas JP_t + Aset Lancar_t) / Total Aset_t] / [(Liabilitas JP_t-1 + Aset Lancar_t-1) / Total Aset_t-1]
-  const leverageCurrent = safeDiv(data.longTermDebt_current + data.currentAssets_current, data.totalAssets_current);
-  const leveragePrior = safeDiv(data.longTermDebt_prior + data.currentAssets_prior, data.totalAssets_prior);
+  // LVGI = [(Liabilitas JP_t + Liabilitas Lancar_t) / Total Aset_t] / [(Liabilitas JP_t-1 + Liabilitas Lancar_t-1) / Total Aset_t-1]
+  // Fixed formula: Use Current Liabilities instead of Current Assets in numerator for leverage
+  const leverageCurrent = safeDiv(data.longTermDebt_current + data.currentLiabilities_current, data.totalAssets_current);
+  const leveragePrior = safeDiv(data.longTermDebt_prior + data.currentLiabilities_prior, data.totalAssets_prior);
   const lvgi = safeDiv(leverageCurrent, leveragePrior);
 
   // M-Score = -4.84 + 0.92*DSRI + 0.528*GMI + 0.404*AQI + 0.892*SGI + 0.115*DEPI - 0.172*SGAI + 4.679*TATA - 0.327*LVGI

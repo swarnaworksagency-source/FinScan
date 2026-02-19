@@ -87,16 +87,25 @@ INSTRUKSI:
 KATEGORI YANG HARUS DIEKSTRAK (cari variasi nama berikut):
 
 PENJUALAN: "Penjualan", "Pendapatan", "Sales", "Revenue", "Net Sales", "Penjualan Neto"
-LABA BRUTO: "Laba Bruto", "Gross Profit", "Laba Kotor" 
+LABA BRUTO: "Laba Bruto", "Gross Profit", "Laba Kotor"
 PIUTANG: "Piutang Usaha", "Piutang Dagang", "Accounts Receivable", "Trade Receivables"
+PIUTANG BERELASI: "Piutang Pihak Berelasi", "Piutang usaha - Pihak berelasi", "Due from related parties", "Receivables from related parties"
 TOTAL ASET: "Total Aset", "Total Assets", "Jumlah Aset", "Total Aktiva"
 ASET LANCAR: "Aset Lancar", "Current Assets", "Aktiva Lancar"
+KAS: "Kas dan Setara Kas", "Cash and Cash Equivalents", "Kas", "Bank"
 ASET TETAP: "Aset Tetap", "Property Plant Equipment", "PPE", "Fixed Assets", "Aktiva Tetap"
-PENYUSUTAN: "Penyusutan", "Depreciation", "Beban Penyusutan", "Depresiasi"
-BEBAN SGA: "Beban Umum Administrasi", "SG&A", "Beban Operasional", "Operating Expenses", "Beban Usaha"
+ASET MIGAS: "Aset Minyak dan Gas", "Oil and Gas Properties", "Aset minyak dan gas serta panas bumi", "Aset Migas"
+PENYUSUTAN: "Penyusutan", "Depreciation", "Beban Penyusutan", "Depresiasi", "Penyusutan, deplesi dan amortisasi", "Amortisasi"
+*PENTING: Cari nilai penyusutan untuk KEDUA tahun. Biasanya ada di Laporan Arus Kas (bagian Operasi) atau Catatan Kaki Aset Tetap.*
+
+BEBAN PENJUALAN: "Beban Penjualan", "Selling Expenses", "Beban penjualan dan pemasaran", "Beban Pemasaran"
+BEBAN UMUM: "Beban Umum dan Administrasi", "General and Administrative Expenses", "Beban Administrasi"
+BEBAN SGA TOTAL: "Total Beban Usaha", "Total Operating Expenses", "Beban Usaha"
 LABA USAHA: "Laba Usaha", "Operating Income", "EBIT", "Laba Operasional"
 ARUS KAS OPERASI: "Arus Kas Operasi", "Cash From Operations", "OCF", "Kas dari Aktivitas Operasi"
+HUTANG PAJAK: "Hutang Pajak", "Utang Pajak", "Taxes Payable", "Utang Pajak Penghasilan"
 LIABILITAS JP: "Liabilitas Jangka Panjang", "Long-term Liabilities", "Utang Jangka Panjang"
+LIABILITAS LANCAR: "Liabilitas Jangka Pendek", "Current Liabilities", "Utang Jangka Pendek", "Liabilitas Lancar"
 
 RETURN JSON DENGAN FORMAT INI SAJA (tanpa teks lain):
 {
@@ -108,20 +117,34 @@ RETURN JSON DENGAN FORMAT INI SAJA (tanpa teks lain):
   "grossProfit_prior": 0,
   "receivables_current": 0,
   "receivables_prior": 0,
+  "receivables_related_current": 0,
+  "receivables_related_prior": 0,
   "totalAssets_current": 0,
   "totalAssets_prior": 0,
   "currentAssets_current": 0,
   "currentAssets_prior": 0,
+  "cash_current": 0,
+  "cash_prior": 0,
   "ppe_current": 0,
   "ppe_prior": 0,
+  "oilAndGas_current": 0,
+  "oilAndGas_prior": 0,
   "depreciation_current": 0,
   "depreciation_prior": 0,
+  "sellingExpense_current": 0,
+  "sellingExpense_prior": 0,
+  "generalExpense_current": 0,
+  "generalExpense_prior": 0,
   "sgaExpense_current": 0,
   "sgaExpense_prior": 0,
   "operatingIncome_current": 0,
   "operatingCashFlow_current": 0,
+  "taxPayable_current": 0,
+  "taxPayable_prior": 0,
   "longTermDebt_current": 0,
-  "longTermDebt_prior": 0
+  "longTermDebt_prior": 0,
+  "currentLiabilities_current": 0,
+  "currentLiabilities_prior": 0
 }
 
 PENTING:
@@ -200,20 +223,34 @@ PENTING:
       grossProfit_prior: getNum(parsed.grossProfit_prior),
       receivables_current: getNum(parsed.receivables_current),
       receivables_prior: getNum(parsed.receivables_prior),
+      receivables_related_current: getNum(parsed.receivables_related_current),
+      receivables_related_prior: getNum(parsed.receivables_related_prior),
       totalAssets_current: getNum(parsed.totalAssets_current),
       totalAssets_prior: getNum(parsed.totalAssets_prior),
       currentAssets_current: getNum(parsed.currentAssets_current),
       currentAssets_prior: getNum(parsed.currentAssets_prior),
+      cash_current: getNum(parsed.cash_current),
+      cash_prior: getNum(parsed.cash_prior),
       ppe_current: getNum(parsed.ppe_current),
       ppe_prior: getNum(parsed.ppe_prior),
+      oilAndGas_current: getNum(parsed.oilAndGas_current),
+      oilAndGas_prior: getNum(parsed.oilAndGas_prior),
       depreciation_current: getNum(parsed.depreciation_current),
       depreciation_prior: getNum(parsed.depreciation_prior),
+      sellingExpense_current: getNum(parsed.sellingExpense_current),
+      sellingExpense_prior: getNum(parsed.sellingExpense_prior),
+      generalExpense_current: getNum(parsed.generalExpense_current),
+      generalExpense_prior: getNum(parsed.generalExpense_prior),
       sgaExpense_current: getNum(parsed.sgaExpense_current),
       sgaExpense_prior: getNum(parsed.sgaExpense_prior),
       operatingIncome_current: getNum(parsed.operatingIncome_current),
       operatingCashFlow_current: getNum(parsed.operatingCashFlow_current),
+      taxPayable_current: getNum(parsed.taxPayable_current),
+      taxPayable_prior: getNum(parsed.taxPayable_prior),
       longTermDebt_current: getNum(parsed.longTermDebt_current),
       longTermDebt_prior: getNum(parsed.longTermDebt_prior),
+      currentLiabilities_current: getNum(parsed.currentLiabilities_current),
+      currentLiabilities_prior: getNum(parsed.currentLiabilities_prior),
     };
 
     // Debug: Log converted financial data
@@ -249,26 +286,43 @@ PENTING:
 // Calculate Beneish M-Score (fallback if AI doesn't calculate)
 function calculateMScore(data: Record<string, any>): MScoreResult {
   // Extract values with defaults
+  // Extract values with defaults
   const sales_current = data.sales_current || 0;
   const sales_prior = data.sales_prior || 0;
   const grossProfit_current = data.grossProfit_current || 0;
   const grossProfit_prior = data.grossProfit_prior || 0;
   const receivables_current = data.receivables_current || 0;
   const receivables_prior = data.receivables_prior || 0;
+  const receivables_related_current = data.receivables_related_current || 0;
+  const receivables_related_prior = data.receivables_related_prior || 0;
   const totalAssets_current = data.totalAssets_current || 0;
   const totalAssets_prior = data.totalAssets_prior || 0;
   const currentAssets_current = data.currentAssets_current || 0;
   const currentAssets_prior = data.currentAssets_prior || 0;
+  const cash_current = data.cash_current || 0;
+  const cash_prior = data.cash_prior || 0;
   const ppe_current = data.ppe_current || 0;
   const ppe_prior = data.ppe_prior || 0;
+  const oilAndGas_current = data.oilAndGas_current || 0;
+  const oilAndGas_prior = data.oilAndGas_prior || 0;
   const depreciation_current = data.depreciation_current || 0;
   const depreciation_prior = data.depreciation_prior || 0;
-  const sgaExpense_current = data.sgaExpense_current || 0;
-  const sgaExpense_prior = data.sgaExpense_prior || 0;
+  const sgaExpense_current = Math.max(
+    (data.sellingExpense_current || 0) + (data.generalExpense_current || 0),
+    data.sgaExpense_current || 0
+  );
+  const sgaExpense_prior = Math.max(
+    (data.sellingExpense_prior || 0) + (data.generalExpense_prior || 0),
+    data.sgaExpense_prior || 0
+  );
   const operatingIncome_current = data.operatingIncome_current || 0;
   const operatingCashFlow_current = data.operatingCashFlow_current || 0;
+  const taxPayable_current = data.taxPayable_current || 0;
+  const taxPayable_prior = data.taxPayable_prior || 0;
   const longTermDebt_current = data.longTermDebt_current || 0;
   const longTermDebt_prior = data.longTermDebt_prior || 0;
+  const currentLiabilities_current = data.currentLiabilities_current || 0;
+  const currentLiabilities_prior = data.currentLiabilities_prior || 0;
 
   // Calculate ratios (with safety for division by zero)
   const safeDiv = (a: number, b: number) => b === 0 ? 1 : a / b;
@@ -369,13 +423,13 @@ function buildExtractedData(
 ): ExtractedData {
   const allFields = [
     'companyName', 'financialYear',
-    'sales_current', 'grossProfit_current', 'receivables_current',
-    'totalAssets_current', 'currentAssets_current', 'ppe_current',
+    'sales_current', 'grossProfit_current', 'receivables_current', 'receivables_related_current',
+    'totalAssets_current', 'currentAssets_current', 'cash_current', 'ppe_current', 'oilAndGas_current',
     'depreciation_current', 'sgaExpense_current', 'operatingIncome_current',
-    'operatingCashFlow_current', 'longTermDebt_current',
-    'sales_prior', 'grossProfit_prior', 'receivables_prior',
-    'totalAssets_prior', 'currentAssets_prior', 'ppe_prior',
-    'depreciation_prior', 'sgaExpense_prior', 'longTermDebt_prior'
+    'operatingCashFlow_current', 'longTermDebt_current', 'currentLiabilities_current', 'taxPayable_current',
+    'sales_prior', 'grossProfit_prior', 'receivables_prior', 'receivables_related_prior',
+    'totalAssets_prior', 'currentAssets_prior', 'cash_prior', 'ppe_prior', 'oilAndGas_prior',
+    'depreciation_prior', 'sgaExpense_prior', 'longTermDebt_prior', 'currentLiabilities_prior', 'taxPayable_prior'
   ];
 
   const missingFields: string[] = [];
