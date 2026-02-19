@@ -286,8 +286,18 @@ export default function UploadWithOCR() {
         ppe_prior: data.financialData?.ppe_prior || 0,
         depreciation_current: data.financialData?.depreciation_current || 0,
         depreciation_prior: data.financialData?.depreciation_prior || 0,
-        sgaExpense_current: data.financialData?.sgaExpense_current || 0,
-        sgaExpense_prior: data.financialData?.sgaExpense_prior || 0,
+        sgaExpense_current: Math.max(
+          (data.financialData?.sellingExpense_current || 0) +
+          (data.financialData?.generalExpense_current || 0) +
+          (data.financialData?.adminExpense_current || 0),
+          data.financialData?.sgaExpense_current || 0
+        ),
+        sgaExpense_prior: Math.max(
+          (data.financialData?.sellingExpense_prior || 0) +
+          (data.financialData?.generalExpense_prior || 0) +
+          (data.financialData?.adminExpense_prior || 0),
+          data.financialData?.sgaExpense_prior || 0
+        ),
         sellingExpense_current: data.financialData?.sellingExpense_current || 0,
         sellingExpense_prior: data.financialData?.sellingExpense_prior || 0,
         generalExpense_current: data.financialData?.generalExpense_current || 0,
