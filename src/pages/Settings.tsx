@@ -28,7 +28,7 @@ const planDetails: Record<string, { name: string; price: string; features: strin
       'Unlimited analyses',
       'Max 50MB file size',
       'API access',
-      'Priority support',
+      'Priority supports',
       'Multi-user accounts'
     ]
   }

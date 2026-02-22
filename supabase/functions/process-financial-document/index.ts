@@ -75,83 +75,63 @@ async function analyzeWithGemini(
 
   const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-  // Simplified prompt focused ONLY on data extraction
-  const EXTRACTION_PROMPT = `Anda adalah AI ekstraksi data keuangan. Tugas Anda adalah mengekstrak angka-angka dari laporan keuangan ini.
+  // Enhanced prompt with Chain-of-Thought
+  const EXTRACTION_PROMPT = `Anda adalah AI pakar ekstraksi data keuangan dari laporan keuangan (Financial Statements).
+Tugas Anda adalah mengekstrak nilai numerik dari dokumen yang diberikan untuk analisis Beneish M-Score.
 
-INSTRUKSI:
-1. Baca SELURUH dokumen dengan teliti
-2. Identifikasi TAHUN terbaru dan tahun sebelumnya
-3. Ekstrak nilai numerik untuk setiap kategori
-4. Jika kolom memiliki 2 tahun, kolom KIRI biasanya tahun terbaru (current), KANAN tahun lalu (prior)
+LANGKAH KERJA:
+1. Analisis Struktur: Identifikasi tabel Neraca (Balance Sheet), Laba Rugi (Income Statement), dan Arus Kas (Cash Flow).
+2. Identifikasi Kolom: Tentukan kolom TAHUN TERBARU (Current) dan TAHUN SEBELUMNYA (Prior).
+3. Cari Data: Telusuri baris demi baris. Perhatikan angka dalam kurung (misal: (500)) adalah nilai NEGATIF.
+4. Verifikasi: Gunakan kolom 'thinking' untuk mencatat di mana Anda menemukan data tersebut.
 
-KATEGORI YANG HARUS DIEKSTRAK (cari variasi nama berikut):
+KATEGORI DATA (Cari variasi nama):
+- PENJUALAN: Net Sales, Revenue, Pendapatan Neto.
+- LABA BRUTO: Gross Profit, Laba Kotor.
+- PIUTANG: Accounts Receivable, Piutang Usaha.
+- PIUTANG BERELASI: Due from related parties, Piutang pihak berelasi.
+- TOTAL ASET: Total Assets, Jumlah Aset.
+- ASET LANCAR: Current Assets, Aset Lancar.
+- KAS: Cash and equivalents, Kas dan bank.
+- ASET TETAP: Fixed Assets, Property Plant and Equipment (PPE).
+- ASET MIGAS: Oil and Gas properties (jika ada).
+- PENYUSUTAN: Depreciation, Amortization, deplesi (sering ada di Arus Kas atau Catatan Kaki PPE).
+- BEBAN PENJUALAN/UMUM/ADMIN: Selling, General & Administrative (SGA).
+- LABA USAHA: Operating Income, EBIT.
+- ARUS KAS OPERASI: Cash flow from operating activities.
+- HUTANG PAJAK: Tax payable, Utang pajak.
+- LIABILITAS LANCAR: Current liabilities, Utang jangka pendek.
+- LIABILITAS JP: Long term debt, Liabilitas jangka panjang.
 
-PENJUALAN: "Penjualan", "Pendapatan", "Sales", "Revenue", "Net Sales", "Penjualan Neto"
-LABA BRUTO: "Laba Bruto", "Gross Profit", "Laba Kotor"
-PIUTANG: "Piutang Usaha", "Piutang Dagang", "Accounts Receivable", "Trade Receivables"
-PIUTANG BERELASI: "Piutang Pihak Berelasi", "Piutang usaha - Pihak berelasi", "Due from related parties", "Receivables from related parties"
-TOTAL ASET: "Total Aset", "Total Assets", "Jumlah Aset", "Total Aktiva"
-ASET LANCAR: "Aset Lancar", "Current Assets", "Aktiva Lancar"
-KAS: "Kas dan Setara Kas", "Cash and Cash Equivalents", "Kas", "Bank"
-ASET TETAP: "Aset Tetap", "Property Plant Equipment", "PPE", "Fixed Assets", "Aktiva Tetap"
-ASET MIGAS: "Aset Minyak dan Gas", "Oil and Gas Properties", "Aset minyak dan gas serta panas bumi", "Aset Migas"
-PENYUSUTAN: "Penyusutan", "Depreciation", "Beban Penyusutan", "Depresiasi", "Penyusutan, deplesi dan amortisasi", "Amortisasi"
-*PENTING: Cari nilai penyusutan untuk KEDUA tahun. Biasanya ada di Laporan Arus Kas (bagian Operasi) atau Catatan Kaki Aset Tetap.*
-
-BEBAN PENJUALAN: "Beban Penjualan", "Selling Expenses", "Beban penjualan dan pemasaran", "Beban Pemasaran"
-BEBAN UMUM: "Beban Umum dan Administrasi", "General and Administrative Expenses", "Beban Administrasi"
-BEBAN SGA TOTAL: "Total Beban Usaha", "Total Operating Expenses", "Beban Usaha"
-LABA USAHA: "Laba Usaha", "Operating Income", "EBIT", "Laba Operasional"
-ARUS KAS OPERASI: "Arus Kas Operasi", "Cash From Operations", "OCF", "Kas dari Aktivitas Operasi"
-HUTANG PAJAK: "Hutang Pajak", "Utang Pajak", "Taxes Payable", "Utang Pajak Penghasilan"
-LIABILITAS JP: "Liabilitas Jangka Panjang", "Long-term Liabilities", "Utang Jangka Panjang"
-LIABILITAS LANCAR: "Liabilitas Jangka Pendek", "Current Liabilities", "Utang Jangka Pendek", "Liabilitas Lancar"
-
-RETURN JSON DENGAN FORMAT INI SAJA (tanpa teks lain):
+RETURN JSON DENGAN FORMAT INI:
 {
+  "thinking": "Penjelasan singkat lokasi temuan data (misal: Penjualan di Laba Rugi hal 4, Aset di Neraca hal 3)",
   "companyName": "nama perusahaan",
   "financialYear": 2024,
-  "sales_current": 0,
-  "sales_prior": 0,
-  "grossProfit_current": 0,
-  "grossProfit_prior": 0,
-  "receivables_current": 0,
-  "receivables_prior": 0,
-  "receivables_related_current": 0,
-  "receivables_related_prior": 0,
-  "totalAssets_current": 0,
-  "totalAssets_prior": 0,
-  "currentAssets_current": 0,
-  "currentAssets_prior": 0,
-  "cash_current": 0,
-  "cash_prior": 0,
-  "ppe_current": 0,
-  "ppe_prior": 0,
-  "oilAndGas_current": 0,
-  "oilAndGas_prior": 0,
-  "depreciation_current": 0,
-  "depreciation_prior": 0,
-  "sellingExpense_current": 0,
-  "sellingExpense_prior": 0,
-  "generalExpense_current": 0,
-  "generalExpense_prior": 0,
-  "sgaExpense_current": 0,
-  "sgaExpense_prior": 0,
-  "operatingIncome_current": 0,
-  "operatingCashFlow_current": 0,
-  "taxPayable_current": 0,
-  "taxPayable_prior": 0,
-  "longTermDebt_current": 0,
-  "longTermDebt_prior": 0,
-  "currentLiabilities_current": 0,
-  "currentLiabilities_prior": 0
+  "sales_current": 0, "sales_prior": 0,
+  "grossProfit_current": 0, "grossProfit_prior": 0,
+  "receivables_current": 0, "receivables_prior": 0,
+  "receivables_related_current": 0, "receivables_related_prior": 0,
+  "totalAssets_current": 0, "totalAssets_prior": 0,
+  "currentAssets_current": 0, "currentAssets_prior": 0,
+  "cash_current": 0, "cash_prior": 0,
+  "ppe_current": 0, "ppe_prior": 0,
+  "oilAndGas_current": 0, "oilAndGas_prior": 0,
+  "depreciation_current": 0, "depreciation_prior": 0,
+  "sellingExpense_current": 0, "sellingExpense_prior": 0,
+  "generalExpense_current": 0, "generalExpense_prior": 0,
+  "sgaExpense_current": 0, "sgaExpense_prior": 0,
+  "operatingIncome_current": 0, "operatingCashFlow_current": 0,
+  "taxPayable_current": 0, "taxPayable_prior": 0,
+  "longTermDebt_current": 0, "longTermDebt_prior": 0,
+  "currentLiabilities_current": 0, "currentLiabilities_prior": 0
 }
 
 PENTING:
-- ISI ANGKA yang ditemukan di dokumen (tanpa titik ribuan, tanpa koma desimal)
-- Angka dalam jutaan? Tulis langsung nilainya (misal: 115786525 bukan 115.786.525)
-- Jika tidak ditemukan, isi 0
-- HANYA return JSON, tanpa penjelasan`;
+- ISI ANGKA MURNI (tanpa titik ribuan, tanpa koma desimal). Misal: 1500000000.
+- Jika angka dalam kurung, biarkan positif atau negatif (AI akan memproses).
+- Jika data BENAR-BENAR tidak ada, isi 0.
+- HANYA kembalikan JSON.`;
 
   const requestBody = {
     contents: [{
@@ -199,6 +179,9 @@ PENTING:
     const parsed = JSON.parse(responseText);
 
     // Debug logging
+    if (parsed.thinking) {
+      console.log('AI Thinking Process:', parsed.thinking);
+    }
     console.log('Parsed response keys:', Object.keys(parsed));
     console.log('Parsed companyName:', parsed.companyName);
     console.log('Parsed financialYear:', parsed.financialYear);
@@ -207,8 +190,16 @@ PENTING:
     const getNum = (val: any): number => {
       if (val === undefined || val === null) return 0;
       if (typeof val === 'number') return val;
-      // Remove thousand separators and parse
-      const cleaned = String(val).replace(/[^\d.-]/g, '');
+
+      let cleaned = String(val).trim();
+
+      // Handle parentheses for negative numbers: (1.234) -> -1.234
+      if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
+        cleaned = '-' + cleaned.substring(1, cleaned.length - 1);
+      }
+
+      // Remove everything except digits, dots, and hyphens
+      cleaned = cleaned.replace(/[^\d.-]/g, '');
       const num = parseFloat(cleaned);
       return isNaN(num) ? 0 : num;
     };
@@ -554,14 +545,42 @@ Deno.serve(async (req: Request) => {
       const fileName = document.file_name || `document.${document.file_type}`;
       const mimeType = getMimeType(document.file_type);
 
-      console.log(`Analyzing with Gemini 1.5 Pro (File: ${fileName}, Type: ${mimeType})...`);
-      const geminiResult = await analyzeWithGemini(fileBase64, fileName, mimeType, geminiApiKey);
+      console.log(`Analyzing with Gemini (File: ${fileName}, Type: ${mimeType})...`);
 
-      financialData = geminiResult.financialData;
-      calculationSteps = geminiResult.calculationSteps || undefined;
-      ocrMethod = 'deepseek'; // Using Gemini 1.5 Pro
+      // Try processing with retry if critical fields are zero
+      let iterations = 0;
+      const MAX_RETRIES = 2;
+      let lastResult;
 
-      console.log(`Gemini 1.5 Pro extracted ${Object.keys(financialData).length} fields`);
+      while (iterations < MAX_RETRIES) {
+        iterations++;
+        console.log(`Extraction attempt ${iterations}/${MAX_RETRIES}...`);
+
+        lastResult = await analyzeWithGemini(fileBase64, fileName, mimeType, geminiApiKey);
+        financialData = lastResult.financialData;
+        calculationSteps = lastResult.calculationSteps || undefined;
+
+        // Critical fields check: If Sales or Total Assets are 0, it might be a failure
+        const hasCriticalData = (financialData.sales_current > 0 || financialData.sales_prior > 0) &&
+          (financialData.totalAssets_current > 0 || financialData.totalAssets_prior > 0);
+
+        // Logic check: Total assets should generally be >= Current Assets
+        const logicCheck = (financialData.totalAssets_current >= financialData.currentAssets_current);
+
+        if (hasCriticalData && logicCheck) {
+          console.log('Extraction looks successful and logical.');
+          break;
+        } else {
+          console.warn(`Attempt ${iterations} yielded suspicious data (Critical: ${hasCriticalData}, Logic: ${logicCheck}).`);
+          if (iterations < MAX_RETRIES) {
+            console.log('Retrying extraction...');
+          }
+        }
+      }
+
+      ocrMethod = 'deepseek'; // Internal marker for advanced OCR
+
+      console.log(`Gemini extracted ${Object.keys(financialData).length} fields after ${iterations} attempts`);
 
       // Calculate M-Score (use our calculation as fallback/verification)
       console.log('Calculating M-Score...');
